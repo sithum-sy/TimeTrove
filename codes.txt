@@ -1,0 +1,105 @@
+---------Laravel project initialisation-----------
+
+composer create-project --prefer-dist laravel/laravel test-project-01
+
+//after pulling from git - composer install
+
+php artisan serve
+
+
+---------Next steps-----------
+
+composer require laravel/ui --dev
+
+php artisan ui bootstrap --auth
+
+npm install
+
+npm run dev
+
+
+php artisan migrate
+
+
+composer dump-autoload
+composer update
+composer remove pkg-name
+
+php artisan make:controller TestController
+
+php artisan make:view test/test-view
+
+
+
+create a model - php artisan make:model Movie
+
+create a table migration - php artisan make:migration create_movies_table
+
+to create the db table - php artisan migrate
+
+to drop the latest db table - php artisan migrate:rollback
+
+to migrate a specific table - php artisan migrate --path=database/migrations/2024_05_1_185936_create_categories_table.php
+
+to make a controller - php artisan make:controller MovieController
+
+
+create a table migration with altered table - php artisan make:migration add_roles_column_to_users_table
+
+to make a seeder - php artisan make:seeder AdminUsersSeeder
+
+to seed - php artisan db:seed
+
+to create a symbolic link - php artisan storage:link
+
+ADDING SLUGS
+   1. composer require cviebrock/eloquent-sluggable
+   2. php artisan vendor:publish --provider="Cviebrock\EloquentSluggable\ServiceProvider"
+   3. php artisan make:migration add_slug_to_categories_table --table=categories
+   4. In the generated migration file, add the slug column: 
+        table->string('slug')->unique();
+   5. php artisan migrate
+   6. Configure the Model:
+        use Sluggable;
+   7. public function index()
+{
+    // Retrieve the categories with their slugs
+    $categories = Category::select('category_id', 'category_name', 'slug')->get();
+
+    // Pass the categories to the view
+    return view('book-categories.category-index', ['categories' => $categories]);
+}
+   8. <a href="{{ route('categories.show', $category->slug) }}">View Category</a>
+   9. Route::get('/categories/{slug}', [CategoryController::class, 'show'])->name('categories.show');
+  10. public function show($slug)
+{
+    // Find the category by slug
+    $category = Category::where('slug', $slug)->firstOrFail();
+
+    // Pass the category to the view
+    return view('book-categories.category-show', ['category' => $category]);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+HomeWork
+
+add crud for publication - DONE
+add profile section
+author can edit his profile/profile public
+class diagram for group project - DONE
+add image for author creation
+profile own edit
+like/comment models DONE
+single publication view DONE
