@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class RegisterController extends Controller
 {
@@ -48,11 +49,23 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
+        $date = new Carbon();
+        $before = $date->subYears(15)->format('Y-m-d');
+
+        $message = [
+            'before' => 'You must be 18 years or older to register',
+        ];
+
         return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'phone_number' => ['required', 'string', 'max:20'],
+            'date_of_birth' => ['required', 'date', 'before:' . $before],
+            'address' => ['required', 'string', 'max:255'],
+            'gender' => ['required', 'string',],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
+        ], $message);
     }
 
     /**
@@ -64,8 +77,14 @@ class RegisterController extends Controller
     protected function create(array $data)
     {
         return User::create([
-            'name' => $data['name'],
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+            'role' => User::USER_ROLE_CLIENT,
             'email' => $data['email'],
+            'phone_number' => $data['phone_number'],
+            'date_of_birth' => $data['date_of_birth'],
+            'address' => $data['address'],
+            'gender' => $data['gender'],
             'password' => Hash::make($data['password']),
         ]);
     }
