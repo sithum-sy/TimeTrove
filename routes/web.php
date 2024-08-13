@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\SchedulerController;
 use Illuminate\Container\Attributes\Auth;
 use Illuminate\Support\Facades\Auth as FacadesAuth;
@@ -17,6 +18,12 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     // Route::get('/author-form', [AuthorController::class, 'create'])->name('author.create');
     Route::post('/scheduler/store', [SchedulerController::class, 'store'])->name('scheduler.store');
     // Route::get('/home/scheduler/show', [SchedulerController::class, 'show']);
+
+
+    Route::get('/home', [ClientController::class, 'panel'])->name('client.panel');
+    Route::post('/client/requests', [ClientController::class, 'addRequest'])->name('client.addRequest');
+    Route::put('/client/requests/{id}', [ClientController::class, 'updateRequest'])->name('client.updateRequest');
+    Route::delete('/client/requests/{id}', [ClientController::class, 'deleteRequest'])->name('client.deleteRequest');
 
     // Route::get('/author-form/index', [AuthorController::class, 'index'])->name('author.all');
     // Route::get('author-form/{id}/view', [AuthorController::class, 'view'])->name('author.view');

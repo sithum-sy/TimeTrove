@@ -33,11 +33,8 @@
                 </div>
             </div>
             @else (Auth::user()->role === 'client')
-            <div class="row bg-light mx-2 p-3">
-                <h2 class="text-center mb-4">All Publications</h2>
 
-            </div>
-
+            @include('client.panel')
 
             @endif
             @endauth

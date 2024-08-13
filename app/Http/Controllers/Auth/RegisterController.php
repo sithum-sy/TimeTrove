@@ -50,7 +50,7 @@ class RegisterController extends Controller
     protected function validator(array $data)
     {
         $date = new Carbon();
-        $before = $date->subYears(15)->format('Y-m-d');
+        $before = $date->subYears(18)->format('Y-m-d');
 
         $message = [
             'before' => 'You must be 18 years or older to register',
