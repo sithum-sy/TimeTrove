@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ServiceCategory;
+use App\Models\ServiceRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class HomeController extends Controller
 {
@@ -25,6 +28,15 @@ class HomeController extends Controller
     public function index()
     {
         $schedulers = User::where('role', User::USER_ROLE_SCHEDULER)->get();
-        return view('home', ['schedulers' => $schedulers]);
+        $serviceRequests = ServiceRequest::where('client_id', Auth::id())
+            ->with('serviceCategory')
+            ->get();
+        $serviceCategories = ServiceCategory::all();
+
+        return view('home', [
+            'schedulers' => $schedulers,
+            'serviceRequests' => $serviceRequests,
+            'serviceCategories' => $serviceCategories
+        ]);
     }
 }

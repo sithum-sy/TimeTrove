@@ -66,7 +66,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Manage Service Providers</h5>
                     <p class="card-text">View and manage service provider information and schedules.</p>
-                    <a href="" class="btn btn-primary">Manage Service Providers</a>
+                    <a href="{{ route('scheduler.serviceProvider') }}" class="btn btn-primary">Manage Service Providers</a>
                 </div>
             </div>
         </div>

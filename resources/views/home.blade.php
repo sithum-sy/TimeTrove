@@ -34,7 +34,7 @@
             </div>
             @else (Auth::user()->role === 'client')
 
-            @include('client.panel')
+            @include('client/panel')
 
             @endif
             @endauth

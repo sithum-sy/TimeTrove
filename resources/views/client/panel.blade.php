@@ -18,9 +18,9 @@
                 <tr>
                     <th>ID</th>
                     <th>Service Category</th>
+                    <th>Description</th>
                     <th>Date</th>
                     <th>Time</th>
-                    <th>Description</th>
                     <th>Status</th>
                     <th>Request Picture</th>
                     <th>Actions</th>
@@ -31,9 +31,9 @@
                 <tr>
                     <td>{{ $request->id }}</td>
                     <td>{{ $request->serviceCategory->name }}</td>
+                    <td>{{ $request->description }}</td>
                     <td>{{ $request->date }}</td>
                     <td>{{ $request->time }}</td>
-                    <td>{{ $request->description }}</td>
                     <td>{{ $request->status }}</td>
                     <td>
                         @if($request->request_picture)
@@ -68,6 +68,7 @@
                         <div class="mb-3">
                             <label for="service_category" class="form-label">Service Category</label>
                             <select class="form-select" id="service_category" name="service_category_id" required>
+                                <option value="" disabled selected>Select a service</option>
                                 @foreach($serviceCategories as $serviceCategory)
                                 <option value="{{ $serviceCategory->id }}">{{ $serviceCategory->name }}</option>
                                 @endforeach
@@ -145,23 +146,4 @@
         </div>
     </div>
 </div>
-@endsection
-
-@section('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Handle edit button clicks
-        const editButtons = document.querySelectorAll('.edit-request');
-        editButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const requestId = this.getAttribute('data-request-id');
-                const form = document.getElementById('editServiceRequestForm');
-                form.action = `/client/requests/${requestId}`;
-
-                // Here you would typically fetch the current request data and populate the form
-                // For this example, we'll just set the form action
-            });
-        });
-    });
-</script>
 @endsection
