@@ -13,6 +13,14 @@ use Illuminate\Support\Facades\Hash;
 
 class SchedulerController extends Controller
 {
+    /**
+     * Store a new scheduler in the database.
+     *
+     * Validates the request data, creates a new scheduler user, and redirects to the home route with a success message.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -27,9 +35,10 @@ class SchedulerController extends Controller
                 }
             }],
             'address' => ['required', 'string', 'max:255'],
-            'gender' => ['required', 'string',],
+            'gender' => ['required', 'string'],
         ]);
 
+        // Create a new User with the role of 'scheduler'
         $user = User::create([
             'first_name' => $validatedData['first_name'],
             'last_name' => $validatedData['last_name'],
@@ -41,9 +50,8 @@ class SchedulerController extends Controller
             'gender' => $validatedData['gender'],
             'password' => Hash::make($validatedData['email']),
             'created_by' => Auth::check() ? Auth::id() : null,
-            'is_active' => true, //default true
-            'is_default_password_changed' => false,
-
+            'is_active' => true, // Default to active
+            'is_default_password_changed' => false, // Default to not changed
         ]);
 
         return redirect()->route('home')->with(
@@ -52,21 +60,40 @@ class SchedulerController extends Controller
         );
     }
 
+    /**
+     * Display the list of service providers.
+     *
+     * Retrieves all users with the role of 'service provider' and passes them to the view.
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function serviceProviderIndex()
     {
         $serviceProviders = User::where('role', User::USER_ROLE_SERVICE_PROVIDER)->get();
-
 
         return view('scheduler/service_provider/index', [
             'serviceProviders' => $serviceProviders,
         ]);
     }
 
+    /**
+     * Show the form for creating a new service provider (Step 1).
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function serviceProviderForm1()
     {
         return view('scheduler/service_provider/form1');
     }
 
+    /**
+     * Show the form for creating a new service provider (Step 2).
+     *
+     * Validates request data and passes it to the view along with service categories.
+     *
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function serviceProviderForm2(Request $request)
     {
         $serviceCategories = ServiceCategory::all();
@@ -83,15 +110,24 @@ class SchedulerController extends Controller
                 }
             }],
             'address' => ['required', 'string', 'max:255'],
-            'gender' => ['required', 'string',],
+            'gender' => ['required', 'string'],
         ]);
 
         return view('scheduler/service_provider/form2', [
             'data' => $validatedData,
-            'serviceCategories' => ServiceCategory::all()
+            'serviceCategories' => $serviceCategories
         ]);
     }
 
+    /**
+     * Store a new service provider in the database.
+     *
+     * Validates the request data, creates a new user with the role of 'service provider',
+     * and associates it with the service provider's services. Uses a transaction to ensure data integrity.
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function serviceProviderStore(Request $request)
     {
         $validatedData = $request->validate([
@@ -110,6 +146,7 @@ class SchedulerController extends Controller
         ]);
 
         DB::transaction(function () use ($validatedData) {
+            // Create a new User with the role of 'service provider'
             $user = User::create([
                 'first_name' => $validatedData['first_name'],
                 'last_name' => $validatedData['last_name'],
@@ -125,6 +162,7 @@ class SchedulerController extends Controller
                 'is_default_password_changed' => false,
             ]);
 
+            // Create a record in ServiceProviderServices for the newly created service provider
             ServiceProviderServices::create([
                 'service_provider_id' => $user->id,
                 'service_category_id' => $validatedData['service_category_id'],
@@ -133,7 +171,6 @@ class SchedulerController extends Controller
                 'rate' => $validatedData['rate'],
                 'city' => $validatedData['city'],
             ]);
-            return $user;
         });
 
         return redirect()->route('scheduler.serviceProvider')->with(

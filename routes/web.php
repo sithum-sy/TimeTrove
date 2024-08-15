@@ -25,5 +25,5 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
 
     Route::post('/home/requests', [ClientController::class, 'addRequest'])->name('client.addRequest');
     // Route::put('/home/requests/{id}', [ClientController::class, 'updateRequest'])->name('client.updateRequest');
-    // Route::delete('/home/requests/{id}', [ClientController::class, 'deleteRequest'])->name('client.deleteRequest');
+    Route::delete('/home/requests/{id}', [ClientController::class, 'deleteRequest'])->name('client.deleteRequest');
 });

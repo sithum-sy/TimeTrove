@@ -1,202 +1,131 @@
-<div class="container mt-4">
+<div class="container-fluid mt-4">
     <h2 class="mb-4">Scheduler Control Panel</h2>
     <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    Appointment Management
-                </div>
+        <!-- Left column - Task handling -->
+        <div class="col-md-3">
+            <div class="card mb-3">
+                <div class="card-header">Appointment Management</div>
                 <div class="card-body">
-                    <h5 class="card-title">Schedule Appointment</h5>
-                    <p class="card-text">Create a new appointment or manage existing ones.</p>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#scheduleAppointmentModal">
+                    <button type="button" class="btn btn-primary btn-sm mb-2 w-100" data-bs-toggle="modal" data-bs-target="#scheduleAppointmentModal">
                         Schedule Appointment
                     </button>
-                    <a href="" class="btn btn-secondary">View Appointments</a>
+                    <a href="" class="btn btn-secondary btn-sm w-100">View Appointments</a>
                 </div>
             </div>
-        </div>
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    Client Management
-                </div>
+            <div class="card mb-3">
+                <div class="card-header">Client Management</div>
                 <div class="card-body">
-                    <h5 class="card-title">Manage Clients</h5>
-                    <p class="card-text">View and manage client information.</p>
-                    <a href="" class="btn btn-primary">Manage Clients</a>
+                    <a href="" class="btn btn-primary btn-sm w-100">Manage Clients</a>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    Payment Management
-                </div>
+            <div class="card mb-3">
+                <div class="card-header">Payment Management</div>
                 <div class="card-body">
-                    <h5 class="card-title">Handle Payments</h5>
-                    <p class="card-text">Process payments and view transaction history.</p>
-                    <a href="" class="btn btn-primary">Manage Payments</a>
+                    <a href="" class="btn btn-primary btn-sm w-100">Manage Payments</a>
                 </div>
             </div>
-        </div>
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    Reminders
-                </div>
+            <div class="card mb-3">
+                <div class="card-header">Reminders</div>
                 <div class="card-body">
-                    <h5 class="card-title">Send Reminders</h5>
-                    <p class="card-text">Send appointment reminders to clients.</p>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#sendReminderModal">
+                    <button type="button" class="btn btn-primary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#sendReminderModal">
                         Send Reminder
                     </button>
                 </div>
             </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    Service Provider Management
-                </div>
+            <div class="card mb-3">
+                <div class="card-header">Service Provider Management</div>
                 <div class="card-body">
-                    <h5 class="card-title">Manage Service Providers</h5>
-                    <p class="card-text">View and manage service provider information and schedules.</p>
-                    <a href="{{ route('scheduler.serviceProvider') }}" class="btn btn-primary">Manage Service Providers</a>
+                    <a href="{{ route('scheduler.serviceProvider') }}" class="btn btn-primary btn-sm w-100">Manage Service Providers</a>
                 </div>
             </div>
         </div>
-        <div class="col-md-6 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    Statistics
-                </div>
-                <div class="card-body">
-                    <h5 class="card-title">Overview</h5>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">Total Appointments: <span id="totalAppointments">Loading...</span></li>
-                        <li class="list-group-item">Upcoming Appointments: <span id="upcomingAppointments">Loading...</span></li>
-                        <li class="list-group-item">Total Clients: <span id="totalClients">Loading...</span></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12 mb-4">
-            <div class="card">
+
+        <!-- Right column - User Request Table and Stats -->
+        <div class="col-md-9">
+            <div class="card mb-3">
                 <div class="card-header">
                     Upcoming Appointments
                 </div>
                 <div class="card-body">
-                    <table class="table table-bordered table-striped table-hover">
-                        <thead class="thead-dark">
-                            <tr>
-                                <th scope="col">ID</th>
-                                <th scope="col">Client Name</th>
-                                <th scope="col">Service</th>
-                                <th scope="col">Date</th>
-                                <th scope="col">Time</th>
-                                <th scope="col">Status</th>
-                                <th scope="col">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-hover">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Client Name</th>
+                                    <th scope="col">Service Category</th>
+                                    <th scope="col">Description</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Time</th>
+                                    <th scope="col">Pictures</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($clientServiceRequests as $request)
+                                <tr>
+                                    <td>{{ $request->id }}</td>
+                                    <td>{{ $request->client->first_name }} {{ $request->client->last_name }}</td>
+                                    <td>{{ $request->serviceCategory->name }}</td>
+                                    <td>{{ $request->description }}</td>
+                                    <td>{{ $request->date }}</td>
+                                    <td>{{ $request->time }}</td>
+                                    <td>
+                                        @if($request->request_picture)
+                                        <img src="{{ asset('storage/' . $request->request_picture) }}" alt="Request Picture" style="max-width: 50px; max-height: 50px;">
+                                        @else
+                                        No picture
+                                        @endif
+                                    </td>
+                                    <td>{{ $request->status }}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#assignModal{{ $request->id }}">
+                                            Assign
+                                        </button>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pagination Links -->
+                    <div class="d-flex justify-content-center">
+                        {{ $clientServiceRequests->links('vendor.pagination.bootstrap-4') }}
+                    </div>
+                </div>
+            </div>
 
-
-                        </tbody>
-                    </table>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">Statistics</div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">Total Appointments: <span id="totalAppointments">Loading...</span></li>
+                                <li class="list-group-item">Upcoming Appointments: <span id="upcomingAppointments">Loading...</span></li>
+                                <li class="list-group-item">Total Clients: <span id="totalClients">Loading...</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">Recent Activity</div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush" id="recentActivity">
+                                <li class="list-group-item">Loading recent activity...</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-12 mb-4">
-            <div class="card">
-                <div class="card-header">
-                    Recent Activity
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush" id="recentActivity">
-                        <li class="list-group-item">Loading recent activity...</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-
 </div>
 
-<!-- Modal for Scheduling Appointment -->
-<div class="modal fade" id="scheduleAppointmentModal" tabindex="-1" aria-labelledby="scheduleAppointmentModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="scheduleAppointmentModalLabel">Schedule Appointment</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="scheduleAppointmentForm" method="POST" action="">
-                    @csrf
-                    <!-- Add form fields for scheduling an appointment -->
-                    <div class="mb-3">
-                        <label for="client" class="form-label">Client</label>
-                        <select class="form-select" id="client" name="client_id" required>
-                            <!-- Populate with clients from the database -->
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="service" class="form-label">Service</label>
-                        <select class="form-select" id="service" name="service_id" required>
-                            <!-- Populate with services from the database -->
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="date" class="form-label">Date</label>
-                        <input type="date" class="form-control" id="date" name="date" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="time" class="form-label">Time</label>
-                        <input type="time" class="form-control" id="time" name="time" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Schedule Appointment</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Modal for Sending Reminder -->
-<div class="modal fade" id="sendReminderModal" tabindex="-1" aria-labelledby="sendReminderModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="sendReminderModalLabel">Send Reminder</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="sendReminderForm" method="POST" action="">
-                    @csrf
-                    <div class="mb-3">
-                        <label for="appointment" class="form-label">Appointment</label>
-                        <select class="form-select" id="appointment" name="appointment_id" required>
-                            <!-- Populate with upcoming appointments from the database -->
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="message" class="form-label">Reminder Message</label>
-                        <textarea class="form-control" id="message" name="message" rows="3" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Send Reminder</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
