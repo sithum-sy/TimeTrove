@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ServiceCategory;
 use App\Models\ServiceProviderServices;
+use App\Models\ServiceRequest;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -177,5 +178,24 @@ class SchedulerController extends Controller
             'status',
             'New Service Provider was added successfully.'
         );
+    }
+
+    public function viewRequest($request_id, $client_id)
+    {
+        $serviceRequest = ServiceRequest::where('id', $request_id)
+            ->where('client_id', $client_id)
+            ->with('serviceCategory')
+            ->firstOrFail();
+
+        // Retrieve service providers who match the service category
+        $serviceCategoryId = $serviceRequest->serviceCategory->id;
+        $serviceProviders = User::whereHas('serviceProviderServices', function ($query) use ($serviceCategoryId) {
+            $query->where('service_category_id', $serviceCategoryId);
+        })->get()->sortBy('name');
+
+        return view('scheduler/client-request-view', [
+            'serviceRequest' => $serviceRequest,
+            'serviceProviders' => $serviceProviders,
+        ]);
     }
 }

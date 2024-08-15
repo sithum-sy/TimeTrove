@@ -80,9 +80,7 @@
                                     </td>
                                     <td>{{ $request->status }}</td>
                                     <td>
-                                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#assignModal{{ $request->id }}">
-                                            Assign
-                                        </button>
+                                        <a href="{{ route('scheduler.singleRequest.view', ['request_id' => $request->id, 'client_id' => $request->client_id]) }}" class="btn btn-primary btn-sm">Assign</a>
                                     </td>
                                 </tr>
                                 @endforeach
@@ -90,7 +88,7 @@
                         </table>
                     </div>
                     <!-- Pagination Links -->
-                    <div class="d-flex justify-content-center">
+                    <div class=" d-flex justify-content-center">
                         {{ $clientServiceRequests->links('vendor.pagination.bootstrap-4') }}
                     </div>
                 </div>
