@@ -58,14 +58,14 @@
                                     <tbody>
                                         @foreach($assignedTasks as $task)
                                         <tr>
-                                            <th scope="row">{{ $task->serviceRequest->id }}</th>
-                                            <td>{{ $task->serviceRequest->client->first_name }} {{ $task->serviceRequest->client->last_name }}</td>
-                                            <td>{{ $task->serviceRequest->serviceCategory->name }}</td>
-                                            <td>{{ $task->serviceRequest->description }}</td>
-                                            <td>{{ $task->serviceRequest->location }}</td>
-                                            <td>{{ $task->serviceRequest->date }}</td>
-                                            <td>{{ $task->serviceRequest->time }}</td>
-                                            <td>{{ ucfirst($task->serviceRequest->status) }}</td>
+                                            <th scope="row">{{ $task->id }}</th>
+                                            <td>{{ $task->client->first_name }} {{ $task->client->last_name }}</td>
+                                            <td>{{ $task->serviceCategory->name }}</td>
+                                            <td>{{ $task->description }}</td>
+                                            <td>{{ $task->location }}</td>
+                                            <td>{{ $task->date }}</td>
+                                            <td>{{ $task->time }}</td>
+                                            <td>{{ ucfirst($task->status) }}</td>
                                             <td><a href="#" class="btn btn-sm btn-primary">Manage</a></td>
                                         </tr>
                                         @endforeach

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\ServiceCategory;
+use App\Models\ServiceProviderServices;
 use App\Models\ServiceRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -54,12 +55,18 @@ class HomeController extends Controller
             ->orderBy('date', 'desc')
             ->paginate(8);
 
+        // Retrieve assigned tasks for the logged-in service provider
+        $assignedTasks = ServiceRequest::where('service_provider_id', Auth::id())
+            ->with(['client', 'serviceCategory'])
+            ->get();
+
         // Pass the retrieved data to the 'home' view
         return view('home', [
             'schedulers' => $schedulers,
             'serviceRequests' => $serviceRequests,
             'serviceCategories' => $serviceCategories,
             'clientServiceRequests' => $clientServiceRequests,
+            'assignedTasks' => $assignedTasks,
         ]);
     }
 }
