@@ -187,7 +187,6 @@ class SchedulerController extends Controller
             ->with('serviceCategory')
             ->firstOrFail();
 
-        // Retrieve service providers who match the service category
         $serviceCategoryId = $serviceRequest->serviceCategory->id;
         $serviceProviders = User::whereHas('serviceProviderServices', function ($query) use ($serviceCategoryId) {
             $query->where('service_category_id', $serviceCategoryId);
@@ -197,5 +196,16 @@ class SchedulerController extends Controller
             'serviceRequest' => $serviceRequest,
             'serviceProviders' => $serviceProviders,
         ]);
+    }
+
+    public function assignProvider(Request $request, $request_id)
+    {
+        $serviceRequest = ServiceRequest::findOrFail($request_id);
+
+        $serviceRequest->service_provider_id = $request->input('service_provider_id');
+        // $serviceRequest->status = 'assigned';
+        $serviceRequest->save();
+
+        return redirect()->back()->with('status', 'Service provider assigned successfully.');
     }
 }

@@ -1,3 +1,6 @@
+@extends('layouts.app')
+
+@section('content')
 <div class="container-fluid mt-4">
     <h2 class="mb-4">Scheduler Control Panel</h2>
     <div class="row">
@@ -55,6 +58,7 @@
                                     <th scope="col">Client Name</th>
                                     <th scope="col">Service Category</th>
                                     <th scope="col">Description</th>
+                                    <th scope="col">Location</th>
                                     <th scope="col">Date</th>
                                     <th scope="col">Time</th>
                                     <th scope="col">Pictures</th>
@@ -69,6 +73,7 @@
                                     <td>{{ $request->client->first_name }} {{ $request->client->last_name }}</td>
                                     <td>{{ $request->serviceCategory->name }}</td>
                                     <td>{{ $request->description }}</td>
+                                    <td>{{ $request->location }}</td>
                                     <td>{{ $request->date }}</td>
                                     <td>{{ $request->time }}</td>
                                     <td>
@@ -121,7 +126,7 @@
         </div>
     </div>
 </div>
-
+@endsection
 
 
 

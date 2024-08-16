@@ -21,17 +21,9 @@
             @include('scheduler/scheduler-panel')
 
             @elseif (Auth::user()->role === 'service_provider')
-            <div class="card">
-                <div class="card-header">Service Provider Section</div>
 
-                <div class="card-body">
-                    <p>Welcome, Author! Here are your author tasks.</p>
+            @include('provider/panel')
 
-                    <a href="" class="btn btn-primary btn-lg mb-3">Create Publication</a>
-                    <a href="" class="btn btn-primary btn-lg mb-3">View Publication</a>
-
-                </div>
-            </div>
             @else (Auth::user()->role === 'client')
 
             @include('client/panel')

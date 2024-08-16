@@ -45,7 +45,8 @@ class ClientController extends Controller
             'date' => 'required|date',
             'time' => 'required|date_format:H:i',
             'request_picture' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
-            'description' => 'nullable|string'
+            'description' => 'nullable|string',
+            'location' => 'required|string'
         ]);
 
         // Add the authenticated client's ID and default status to the validated data
@@ -62,7 +63,7 @@ class ClientController extends Controller
         ServiceRequest::create($validatedData);
 
         // Redirect back to the client panel with a success message
-        return redirect()->route('client.panel')->with('success', 'Service request added successfully.');
+        return redirect()->route('home')->with('success', 'Service request added successfully.');
     }
 
     /**
@@ -86,7 +87,8 @@ class ClientController extends Controller
             'date' => 'required|date',
             'time' => 'required|date_format:H:i',
             'request_picture' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
-            'description' => 'nullable|string'
+            'description' => 'nullable|string',
+            'location' => 'required|string'
         ]);
 
         // If a new picture is uploaded, store it and update the path

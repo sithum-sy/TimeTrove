@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('date');
             $table->time('time');
             $table->string('request_picture')->nullable();
-            $table->enum('status', ['pending', 'approved', 'rejected', 'completed'])->default('pending');
+            $table->enum('status', ['pending', 'approved', 'assigned', 'rejected', 'completed'])->default('pending');
             $table->timestamps();
         });
     }

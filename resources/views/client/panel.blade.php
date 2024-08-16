@@ -19,6 +19,7 @@
                     <th>ID</th>
                     <th>Service Category</th>
                     <th>Description</th>
+                    <th>Location</th>
                     <th>Date</th>
                     <th>Time</th>
                     <th>Status</th>
@@ -32,6 +33,7 @@
                     <td>{{ $request->id }}</td>
                     <td>{{ $request->serviceCategory->name }}</td>
                     <td>{{ $request->description }}</td>
+                    <td>{{ $request->location }}</td>
                     <td>{{ $request->date }}</td>
                     <td>{{ $request->time }}</td>
                     <td>{{ $request->status }}</td>
@@ -77,6 +79,10 @@
                         <div class="mb-3">
                             <label for="description" class="form-label">Description</label>
                             <textarea id="description" class="form-control" name="description" rows="4" required autocomplete="description" autofocus>{{ old('description') }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="location" class="form-label">Location</label>
+                            <input type="text" class="form-control" id="location" name="location" required>
                         </div>
                         <div class="mb-3">
                             <label for="date" class="form-label">Date</label>

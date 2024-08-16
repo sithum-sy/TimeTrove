@@ -64,4 +64,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(ServiceProviderServices::class, 'service_provider_id');
     }
+
+    public function serviceRequests()
+    {
+        return $this->belongsToMany(ServiceRequest::class, 'service_provider_services');
+    }
 }

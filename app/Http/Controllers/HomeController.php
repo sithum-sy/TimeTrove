@@ -51,7 +51,7 @@ class HomeController extends Controller
         // ordered by date and paginated with 8 requests per page
         $clientServiceRequests = ServiceRequest::where('status', 'pending')
             ->with(['client', 'serviceCategory'])
-            ->orderBy('date', 'asc')
+            ->orderBy('date', 'desc')
             ->paginate(8);
 
         // Pass the retrieved data to the 'home' view

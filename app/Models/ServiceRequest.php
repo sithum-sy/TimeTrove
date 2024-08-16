@@ -17,6 +17,7 @@ class ServiceRequest extends Model
         'time',
         'status',
         'request_picture',
+        'location',
     ];
 
     public function client()
@@ -27,5 +28,15 @@ class ServiceRequest extends Model
     public function serviceCategory()
     {
         return $this->belongsTo(ServiceCategory::class, 'service_category_id');
+    }
+
+    public function serviceProviders()
+    {
+        return $this->belongsToMany(User::class, 'service_provider_services');
+    }
+
+    public function serviceProvider()
+    {
+        return $this->belongsTo(User::class, 'service_provider_id');
     }
 }
