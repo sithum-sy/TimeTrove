@@ -1,0 +1,41 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('service_requests', function (Blueprint $table) {
+            $table->enum('status', [
+                'pending',
+                'in-progress',
+                'quote-approved',
+                'assigned',
+                'quoted',
+                'quote-rejected',
+                'new-quote-requested',
+                'rejected',
+                're-assigned',
+                'confirmed',
+                'completed',
+                'pending-approval'
+            ])->default('pending')->change();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('service_requests', function (Blueprint $table) {
+            $table->dropColumn('status');
+        });
+    }
+};

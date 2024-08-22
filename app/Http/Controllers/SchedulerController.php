@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Quotation;
 use App\Models\ServiceCategory;
 use App\Models\ServiceProviderServices;
 use App\Models\ServiceRequest;
@@ -192,9 +193,12 @@ class SchedulerController extends Controller
             $query->where('service_category_id', $serviceCategoryId);
         })->get()->sortBy('name');
 
+        $quotation = Quotation::where('service_request_id', $serviceRequest->id)->first();
+
         return view('scheduler/client-request-view', [
             'serviceRequest' => $serviceRequest,
             'serviceProviders' => $serviceProviders,
+            'quotation' => $quotation,
         ]);
     }
 
@@ -203,9 +207,23 @@ class SchedulerController extends Controller
         $serviceRequest = ServiceRequest::findOrFail($request_id);
 
         $serviceRequest->service_provider_id = $request->input('service_provider_id');
-        // $serviceRequest->status = 'assigned';
+        $serviceRequest->status = 'assigned';
         $serviceRequest->save();
 
-        return redirect()->back()->with('status', 'Service provider assigned successfully.');
+        return redirect('home')->with('status', 'Service provider assigned successfully.');
+    }
+
+    public function requestNewQuote(Request $request, $request_id)
+    {
+        $serviceRequest = ServiceRequest::findOrFail($request_id);
+
+        $serviceProviderId = $request->input('service_provider_id');
+        if ($serviceProviderId) {
+            $serviceRequest->service_provider_id = $serviceProviderId;
+        }
+        $serviceRequest->status = 'new-quote-requested';
+        $serviceRequest->save();
+
+        return redirect('home')->with('status', 'Service provider assigned successfully.');
     }
 }

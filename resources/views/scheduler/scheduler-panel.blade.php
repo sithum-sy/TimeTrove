@@ -98,6 +98,61 @@
                     </div>
                 </div>
             </div>
+            <div class="card mb-3">
+                <div class="card-header">
+                    Quotations by Service Providers
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped table-hover">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Client Name</th>
+                                    <th scope="col">Service Category</th>
+                                    <th scope="col">Description</th>
+                                    <th scope="col">Location</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Time</th>
+                                    <th scope="col">Pictures</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($clientServiceRequests as $request)
+                                @if($request->status === 'quoted')
+                                <tr>
+                                    <td>{{ $request->id }}</td>
+                                    <td>{{ $request->client->first_name }} {{ $request->client->last_name }}</td>
+                                    <td>{{ $request->serviceCategory->name }}</td>
+                                    <td>{{ $request->description }}</td>
+                                    <td>{{ $request->location }}</td>
+                                    <td>{{ $request->date }}</td>
+                                    <td>{{ $request->time }}</td>
+                                    <td>
+                                        @if($request->request_picture)
+                                        <img src="{{ asset('storage/' . $request->request_picture) }}" alt="Request Picture" style="max-width: 50px; max-height: 50px;">
+                                        @else
+                                        No picture
+                                        @endif
+                                    </td>
+                                    <td>{{ $request->status }}</td>
+                                    <td>
+                                        <a href="{{ route('scheduler.singleRequest.view', ['request_id' => $request->id, 'client_id' => $request->client_id]) }}" class="btn btn-primary btn-sm">View</a>
+                                    </td>
+                                </tr>
+                                @endif
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pagination Links -->
+                    <div class=" d-flex justify-content-center">
+                        {{ $clientServiceRequests->links('vendor.pagination.bootstrap-4') }}
+                    </div>
+                </div>
+            </div>
 
             <div class="row">
                 <div class="col-md-6">

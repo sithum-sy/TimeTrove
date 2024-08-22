@@ -34,18 +34,17 @@
                     </div>
                 </div>
 
+                @if ($serviceRequest->status === 'pending')
                 <div class="col-md-8">
                     <div class="card mb-3">
                         <div class="card-header">
                             {{ $serviceRequest->serviceCategory->name }} Service Providers
                         </div>
 
-
                         <div class="card-body">
                             <form action="{{ route('scheduler.assignProvider', $serviceRequest->id) }}" method="POST">
                                 @csrf
                                 @method('POST')
-
                                 <div class="form-group">
                                     <label for="service_provider">Select Service Provider</label>
                                     <select id="service_provider" name="service_provider_id" class="form-control">
@@ -56,14 +55,65 @@
                                         @endforeach
                                     </select>
                                 </div>
-
                                 <button type="submit" class="btn btn-primary mt-3">Assign Provider</button>
                             </form>
-
                         </div>
                     </div>
-
                 </div>
+                @elseif ($serviceRequest->status === 'quoted')
+                <div class="col-md-8">
+                    <div class="card mb-3">
+                        <div class="card-header">Quotation For Service Request</div>
+                        <div class="card-body">
+                            @csrf
+                            <div class="mb-3">
+                                <label for="service_provider_id" class="form-label">Service Provider ID</label>
+                                <input type="text" class="form-control" id="service_provider_id" name="service_provider_id" value="{{ $quotation->service_provider_id ?? '' }}" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="service_provider_name" class="form-label">Service Provider Name</label>
+                                <input type="text" class="form-control" id="service_provider_name" name="service_provider_name" value="{{ $quotation->serviceProvider->first_name ?? '' }} {{ $quotation->serviceProvider->last_name ?? '' }}"
+                                    readonly>
+                            </div>
+                            <div class="mb-3">
+                                <label for="estimated_hours" class="form-label">Estimated Hours</label>
+                                <input type="number" class="form-control" id="estimated_hours" name="estimated_hours" value="{{ $quotation->estimated_hours ?? '' }}" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="hourly_rate" class="form-label">Hourly Rate (Rs)</label>
+                                <input type="number" class="form-control" id="hourly_rate" name="hourly_rate" value="{{ $quotation->hourly_rate ?? '' }}" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="materials_cost" class="form-label">Materials Cost (Rs)</label>
+                                <input type="number" class="form-control" id="materials_cost" name="materials_cost" value="{{ $quotation->materials_cost ?? '' }}" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="additional_charges" class="form-label">Additional Charges (Rs)</label>
+                                <input type="number" class="form-control" id="additional_charges" name="additional_charges" value="{{ $quotation->additional_charges ?? '0' }}" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="total_charges" class="form-label"><strong>Total Charges (Rs)</strong></label>
+                                <input type="number" class="form-control" id="total_charges" name="total_charges" value="{{ $quotation->total_charges ?? '' }}" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">Notes</label>
+                                <textarea class="form-control" id="notes" name="notes" rows="3" readonly>{{ $quotation->notes ?? '' }}</textarea>
+                            </div>
+
+                            <div class="d-flex mt-4">
+                                <a href="{{ route('scheduler.requestNewQuote', $serviceRequest->id) }}" class="btn btn-warning me-2">Request New Quote</a>
+                                <a href="" class="btn btn-success">Pass to Client</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
     </div>

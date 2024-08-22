@@ -66,7 +66,15 @@
                                             <td>{{ $task->date }}</td>
                                             <td>{{ $task->time }}</td>
                                             <td>{{ ucfirst($task->status) }}</td>
-                                            <td><a href="#" class="btn btn-sm btn-primary">Manage</a></td>
+                                            <td>
+                                                @if($task->status === 'assigned')
+                                                <a href="{{ route('provider.serviceRequest.view', ['task_id' => $task->id, 'client_id' => $task->client_id]) }}" class="btn btn-sm btn-primary">Manage</a>
+                                                @elseif($task->status === 'quoted')
+                                                <a href="{{ route('provider.serviceRequest.view', ['task_id' => $task->id, 'client_id' => $task->client_id]) }}" class="btn btn-sm btn-info">View</a>
+                                                @elseif($task->status === 'new-quote-requested')
+                                                <a href="{{ route('provider.serviceRequest.view', ['task_id' => $task->id, 'client_id' => $task->client_id]) }}" class="btn btn-sm btn-secondary">Requote</a>
+                                                @endif
+                                            </td>
                                         </tr>
                                         @endforeach
                                     </tbody>
@@ -74,6 +82,8 @@
                             </div>
                             <!-- Pagination Links -->
                             <div class="d-flex justify-content-center">
+                                {{ $assignedTasks->links('vendor.pagination.bootstrap-4') }}
+
                             </div>
                         </div>
                     </div>

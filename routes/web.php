@@ -3,6 +3,7 @@
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SchedulerController;
+use App\Http\Controllers\ServiceProviderController;
 use Illuminate\Container\Attributes\Auth;
 use Illuminate\Support\Facades\Auth as FacadesAuth;
 use Illuminate\Support\Facades\Route;
@@ -24,12 +25,14 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::post('/scheduler/service-provider/store', [SchedulerController::class, 'serviceProviderStore'])->name('scheduler.serviceProvider.store');
     // Route::post('/scheduler/assign-providers', [SchedulerController::class, 'assignProviders'])->name('scheduler.assignProviders');
     Route::post('/scheduler/assign-provider/{request_id}', [SchedulerController::class, 'assignProvider'])->name('scheduler.assignProvider');
+    Route::get('/service-request/{request_id}/client/{client_id}', [SchedulerController::class, 'viewRequest'])->name('scheduler.singleRequest.view');
+    Route::get('/service-request/{request_id}/', [SchedulerController::class, 'requestNewQuote'])->name('scheduler.requestNewQuote');
 
     Route::post('/home/requests', [ClientController::class, 'addRequest'])->name('client.addRequest');
     // Route::put('/home/requests/{id}', [ClientController::class, 'updateRequest'])->name('client.updateRequest');
     Route::delete('/home/requests/{id}', [ClientController::class, 'deleteRequest'])->name('client.deleteRequest');
 
-
-
-    Route::get('/service-request/{request_id}/client/{client_id}', [SchedulerController::class, 'viewRequest'])->name('scheduler.singleRequest.view');
+    Route::get('/provider/request/{task_id}/client/{client_id}', [ServiceProviderController::class, 'viewRequest'])->name('provider.serviceRequest.view');
+    Route::post('/provider/request/{id}', [ServiceProviderController::class, 'rejectRequest'])->name('provider.serviceRequest.reject');
+    Route::post('/provider/request/quotation/{serviceRequest}', [ServiceProviderController::class, 'storeQuotation'])->name('provider.storeQuotation');
 });

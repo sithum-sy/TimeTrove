@@ -50,15 +50,16 @@ class HomeController extends Controller
 
         // Retrieve all pending service requests with related client and service category,
         // ordered by date and paginated with 8 requests per page
-        $clientServiceRequests = ServiceRequest::where('status', 'pending')
+        $clientServiceRequests = ServiceRequest::whereIn('status', ['pending', 'quoted'])
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc')
             ->paginate(8);
 
         // Retrieve assigned tasks for the logged-in service provider
         $assignedTasks = ServiceRequest::where('service_provider_id', Auth::id())
+            ->whereIn('status', ['assigned', 'quoted', 'new-quote-requested'])
             ->with(['client', 'serviceCategory'])
-            ->get();
+            ->paginate(8);
 
         // Pass the retrieved data to the 'home' view
         return view('home', [
