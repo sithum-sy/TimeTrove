@@ -121,7 +121,7 @@
                             </thead>
                             <tbody>
                                 @foreach($clientServiceRequests as $request)
-                                @if($request->status === 'quoted')
+                                @if($request->status === 'quoted' || $request->status === 're-quoted' || $request->status === 'pending-approval')
                                 <tr>
                                     <td>{{ $request->id }}</td>
                                     <td>{{ $request->client->first_name }} {{ $request->client->last_name }}</td>

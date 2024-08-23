@@ -1,155 +1,182 @@
 @extends('layouts.app')
 
-@section('title', 'Client Panel')
+@section('title', 'Client Dashboard')
 
 @section('content')
-<div class="container mt-4">
-    <h1 class="mb-4">Client Panel</h1>
-
-    <!-- Add Service Request Button -->
-    <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addServiceRequestModal">
-        Add Service Request
-    </button>
-
-    <!-- Service Requests Table -->
-    <div class="table-responsive">
-        <table class="table table-striped table-hover">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Service Category</th>
-                    <th>Description</th>
-                    <th>Location</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Status</th>
-                    <th>Request Picture</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($serviceRequests as $request)
-                <tr>
-                    <td>{{ $request->id }}</td>
-                    <td>{{ $request->serviceCategory->name }}</td>
-                    <td>{{ $request->description }}</td>
-                    <td>{{ $request->location }}</td>
-                    <td>{{ $request->date }}</td>
-                    <td>{{ $request->time }}</td>
-                    <td>{{ $request->status }}</td>
-                    <td>
-                        @if($request->request_picture)
-                        <img src="{{ asset('storage/' . $request->request_picture) }}" alt="Request Picture" width="100">
-                        @endif
-                    </td>
-                    <td>
-                        <a href="" class="btn btn-warning">Edit</a>
-                        <form action="{{ route('client.deleteRequest', $request->id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger">Delete</button>
-                        </form>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Add Service Request Modal -->
-    <div class="modal fade" id="addServiceRequestModal" tabindex="-1" aria-labelledby="addServiceRequestModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addServiceRequestModalLabel">Add Service Request</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="container-fluid mt-4">
+    <h1 class="mb-4">Client Dashboard</h1>
+    <div class="row">
+        <!-- Left Column - Control Panels -->
+        <div class="col-md-3 mb-4">
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
                 </div>
-                <form action="{{ route('client.addRequest') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="service_category" class="form-label">Service Category</label>
-                            <select class="form-select" id="service_category" name="service_category_id" required>
-                                <option value="" disabled selected>Select a service</option>
-                                @foreach($serviceCategories as $serviceCategory)
-                                <option value="{{ $serviceCategory->id }}">{{ $serviceCategory->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="description" class="form-label">Description</label>
-                            <textarea id="description" class="form-control" name="description" rows="4" required autocomplete="description" autofocus>{{ old('description') }}</textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="location" class="form-label">Location</label>
-                            <input type="text" class="form-control" id="location" name="location" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="date" class="form-label">Date</label>
-                            <input type="date" class="form-control" id="date" name="date" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="time" class="form-label">Time</label>
-                            <input type="time" class="form-control" id="time" name="time" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="request_picture" class="form-label">Pictures</label>
-                            <input type="file" class="form-control" id="request_picture" name="request_picture">
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Submit Request</button>
-                    </div>
-                </form>
+                <div class="card-body">
+                    <button type="button" class="btn btn-success btn-block mb-2" data-bs-toggle="modal" data-bs-target="#addServiceRequestModal">
+                        <i class="fas fa-plus-circle"></i> New Service Request
+                    </button>
+                    <a href="#" class="btn btn-info btn-block mb-2">
+                        <i class="fas fa-user-cog"></i> Profile Settings
+                    </a>
+                    <a href="#" class="btn btn-warning btn-block">
+                        <i class="fas fa-history"></i> View History
+                    </a>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="card-title mb-0">Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Total Requests:</strong> <span id="totalRequests">{{ $serviceRequests->count() }}</span></p>
+                    <p><strong>Pending Requests:</strong> <span id="pendingRequests">{{ $serviceRequests->where('status', 'pending')->count() }}</span></p>
+                    <p><strong>Completed Requests:</strong> <span id="completedRequests">{{ $serviceRequests->where('status', 'completed')->count() }}</span></p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">Need Help?</h5>
+                </div>
+                <div class="card-body">
+                    <p>Contact our support team:</p>
+                    <p><i class="fas fa-phone"></i> +1 (123) 456-7890</p>
+                    <p><i class="fas fa-envelope"></i> support@example.com</p>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Edit Service Request Modal -->
-    <div class="modal fade" id="editServiceRequestModal" tabindex="-1" aria-labelledby="editServiceRequestModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="editServiceRequestModalLabel">Edit Service Request</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <!-- Right Column - Service Requests Table -->
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="card-title mb-0">Your Service Requests</h5>
                 </div>
-                <form id="editServiceRequestForm" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    @method('PUT')
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="edit_service_category" class="form-label">Service Category</label>
-                            <select class="form-select" id="edit_service_category" name="service_category_id" required>
-                                @foreach($serviceCategories as $serviceCategory)
-                                <option value="{{ $serviceCategory->id }}">{{ $serviceCategory->name }}</option>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Service</th>
+                                    <th>Description</th>
+                                    <th>Location</th>
+                                    <th>Date & Time</th>
+                                    <th>Status</th>
+                                    <!-- <th>Picture</th> -->
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($serviceRequests as $request)
+                                <tr>
+                                    <td>{{ $request->id }}</td>
+                                    <td>{{ $request->serviceCategory->name }}</td>
+                                    <td>{{ Str::limit($request->description, 30) }}</td>
+                                    <td>{{ $request->location }}</td>
+                                    <td>{{ $request->date }} at {{ $request->time }}</td>
+                                    <td><span class="badge bg-{{ $request->status == 'pending' ? 'warning' : 'success' }}">{{ ucfirst($request->status) }}</span></td>
+                                    <!-- <td>
+                                        @if($request->request_picture)
+                                        <img src="{{ asset('storage/' . $request->request_picture) }}" alt="Request Picture" width="50" height="50" class="img-thumbnail">
+                                        @else
+                                        <span class="text-muted">No image</span>
+                                        @endif
+                                    </td> -->
+                                    <td>
+                                        <!-- <button class="btn btn-sm btn-primary edit-request" data-request-id="{{ $request->id }}"><i class="fas fa-edit"></i></button>
+                                        <form action="{{ route('client.deleteRequest', $request->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this request?')"><i class="fas fa-trash"></i></button>
+                                        </form> -->
+                                        <a href="{{ route('client.singleRequest.view', $request->id) }}" class="btn btn-primary btn-sm">Manage</a>
+
+                                    </td>
+                                </tr>
                                 @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_description" class="form-label">Description</label>
-                            <textarea id="edit_description" class="form-control" name="description" rows="4" required></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_date" class="form-label">Date</label>
-                            <input type="date" class="form-control" id="edit_date" name="date" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_time" class="form-label">Time</label>
-                            <input type="time" class="form-control" id="edit_time" name="time" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="edit_request_picture" class="form-label">Pictures</label>
-                            <input type="file" class="form-control" id="edit_request_picture" name="request_picture">
-                        </div>
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Update Request</button>
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Add Service Request Modal -->
+<div class="modal fade" id="addServiceRequestModal" tabindex="-1" aria-labelledby="addServiceRequestModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="addServiceRequestModalLabel">Add New Service Request</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('client.addRequest') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="service_category" class="form-label">Service Category</label>
+                        <select class="form-select" id="service_category" name="service_category_id" required>
+                            <option value="" disabled selected>Select a service</option>
+                            @foreach($serviceCategories as $serviceCategory)
+                            <option value="{{ $serviceCategory->id }}">{{ $serviceCategory->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea id="description" class="form-control" name="description" rows="4" required>{{ old('description') }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="location" name="location" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="date" name="date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="time" class="form-label">Time</label>
+                        <input type="time" class="form-control" id="time" name="time" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="request_picture" class="form-label">Pictures</label>
+                        <input type="file" class="form-control" id="request_picture" name="request_picture">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Submit Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Service Request Modal -->
+<div class="modal fade" id="editServiceRequestModal" tabindex="-1" aria-labelledby="editServiceRequestModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editServiceRequestModalLabel">Edit Service Request</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="editServiceRequestForm" method="POST" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <!-- Form fields (similar to the add modal, but with 'edit_' prefix) -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Update Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @endsection

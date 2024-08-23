@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Quotation;
+use App\Models\Rating;
 use App\Models\ServiceCategory;
 use App\Models\ServiceRequest;
 use Illuminate\Http\Request;
@@ -123,5 +125,122 @@ class ClientController extends Controller
 
         // Redirect back to the client panel with a success message
         return redirect()->route('client.panel')->with('success', 'Service request deleted successfully.');
+    }
+
+    public function singleRequest($requestId)
+    {
+        $serviceRequest = ServiceRequest::where('id', $requestId)
+            ->where('client_id', Auth::id())
+            ->with('serviceCategory')
+            ->firstOrFail();
+
+        $quotation = Quotation::where('service_request_id', $serviceRequest->id)->latest()->first();
+
+        return view('client.single-request-view', [
+            'serviceRequest' => $serviceRequest,
+            'quotation' => $quotation,
+        ]);
+    }
+
+    public function requestNewQuote(Request $request, $requestId)
+    {
+        $serviceRequest = ServiceRequest::findOrFail($requestId);
+
+        $serviceProviderId = $request->input('service_provider_id');
+        if ($serviceProviderId) {
+            $serviceRequest->service_provider_id = $serviceProviderId;
+        }
+        $serviceRequest->status = 'new-quote-requested';
+        $serviceRequest->save();
+
+        return redirect('home')->with('status', 'New quote requested.');
+    }
+
+    public function confirm(Request $request, $requestId)
+    {
+        $serviceRequest = ServiceRequest::findOrFail($requestId);
+
+        $serviceProviderId = $request->input('service_provider_id');
+        if ($serviceProviderId) {
+            $serviceRequest->service_provider_id = $serviceProviderId;
+        }
+        $serviceRequest->status = 'confirmed';
+        $serviceRequest->save();
+
+        return redirect('home')->with('status', 'Appointment for service request confirmed successfully.');
+    }
+
+    public function rejectQuote($requestId)
+    {
+        $serviceRequest = ServiceRequest::findOrFail($requestId);
+
+        if ($serviceRequest->status === 'pending-approval') {
+            $serviceRequest->service_provider_id = null;
+
+            $serviceRequest->status = 'pending';
+
+            $serviceRequest->save();
+
+            Quotation::where('service_request_id', $requestId)->delete();
+
+            return redirect('home')->with('status', 'Service rejected.');
+        }
+
+        return redirect()->back()->with('error', 'This service request cannot be rejected.');
+    }
+
+    public function completeServiceRequest($requestId)
+    {
+        // Find the service request
+        $serviceRequest = ServiceRequest::findOrFail($requestId);
+
+        // Update status to completed
+        $serviceRequest->status = 'completed';
+        $serviceRequest->save();
+
+        // Return the view with the modal for rating
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Service request completed successfully.',
+        //     'showRatingModal' => true
+        // ]);
+        return redirect('home')->with('status', 'Service request completed.');
+    }
+
+    public function rateService(Request $request, $serviceRequestId)
+    {
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:10',
+            'comment' => 'nullable|string|max:1000',
+        ]);
+
+        $serviceRequest = ServiceRequest::findOrFail($serviceRequestId);
+
+        if ($serviceRequest->client_id != auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized action.'
+            ], 403);
+        }
+
+        if ($serviceRequest->status != 'completed') {
+            return response()->json([
+                'success' => false,
+                'message' => 'You can only rate completed services.'
+            ], 400);
+        }
+
+        Rating::create([
+            'service_request_id' => $serviceRequest->id,
+            'client_id' => auth()->id(),
+            'service_provider_id' => $serviceRequest->service_provider_id,
+            'rating' => $request->input('rating'),
+            'comment' => $request->input('comment'),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Thank you for your feedback!'
+        ]);
     }
 }

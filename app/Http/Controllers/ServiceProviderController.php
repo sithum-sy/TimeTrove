@@ -33,7 +33,7 @@ class ServiceProviderController extends Controller
             $query->where('service_category_id', $serviceCategoryId);
         })->get()->sortBy('name');
 
-        $quotation = Quotation::where('service_request_id', $serviceRequest->id)->first();
+        $quotation = Quotation::where('service_request_id', $serviceRequest->id)->latest()->first();
 
         return view('provider.service-request-view', [
             'serviceRequest' => $serviceRequest,
@@ -91,5 +91,45 @@ class ServiceProviderController extends Controller
 
         // Redirect back with a success message
         return redirect('home')->with('status', 'Quotation submitted successfully.');
+    }
+
+    public function reQuote(Request $request, $quotationId)
+    {
+        // Validate the request
+        $validated = $request->validate([
+            'service_provider_id' => 'required|exists:users,id',
+            'estimated_hours' => 'required|numeric',
+            'hourly_rate' => 'required|numeric',
+            'materials_cost' => 'required|numeric',
+            'additional_charges' => 'required|numeric',
+            'notes' => 'nullable|string',
+        ]);
+
+        // Fetch the existing quotation
+        $quotation = Quotation::findOrFail($quotationId);
+
+        // Calculate the total charges
+        $totalCharges = ($validated['estimated_hours'] * $validated['hourly_rate']) +
+            $validated['materials_cost'] +
+            $validated['additional_charges'];
+
+        // Update the quotation with new data
+        $quotation->update([
+            'service_provider_id' => $validated['service_provider_id'],
+            'estimated_hours' => $validated['estimated_hours'],
+            'hourly_rate' => $validated['hourly_rate'],
+            'materials_cost' => $validated['materials_cost'],
+            'additional_charges' => $validated['additional_charges'],
+            'total_charges' => $totalCharges,
+            'notes' => $validated['notes'],
+        ]);
+
+        // Update the service request status
+        $serviceRequest = ServiceRequest::findOrFail($quotation->service_request_id);
+        $serviceRequest->status = 're-quoted';
+        $serviceRequest->save();
+
+        // Redirect back with a success message
+        return redirect('home')->with('status', 'Quotation updated successfully.');
     }
 }

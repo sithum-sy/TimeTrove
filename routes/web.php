@@ -27,12 +27,20 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::post('/scheduler/assign-provider/{request_id}', [SchedulerController::class, 'assignProvider'])->name('scheduler.assignProvider');
     Route::get('/service-request/{request_id}/client/{client_id}', [SchedulerController::class, 'viewRequest'])->name('scheduler.singleRequest.view');
     Route::get('/service-request/{request_id}/', [SchedulerController::class, 'requestNewQuote'])->name('scheduler.requestNewQuote');
+    Route::get('/service-request/pass-to-client/{request_id}/', [SchedulerController::class, 'passToClient'])->name('scheduler.passToClient');
 
     Route::post('/home/requests', [ClientController::class, 'addRequest'])->name('client.addRequest');
     // Route::put('/home/requests/{id}', [ClientController::class, 'updateRequest'])->name('client.updateRequest');
     Route::delete('/home/requests/{id}', [ClientController::class, 'deleteRequest'])->name('client.deleteRequest');
+    Route::get('/home/request/{requestId}', [ClientController::class, 'singleRequest'])->name('client.singleRequest.view');
+    Route::get('/home/request/new-quote-request/{requestId}/', [ClientController::class, 'requestNewQuote'])->name('client.requestNewQuote');
+    Route::get('/home/request/confirm/{requestId}/', [ClientController::class, 'confirm'])->name('client.confirm');
+    Route::post('/home/request/reject/{requestId}/', [ClientController::class, 'rejectQuote'])->name('client.rejectQuote');
+    Route::get('/home/request/complete/{requestId}/', [ClientController::class, 'completeServiceRequest'])->name('client.completeServiceRequest');
+    // Route::post('/home/request/rate/{requestId}/', [ClientController::class, 'rateService'])->name('client.rateService');
 
     Route::get('/provider/request/{task_id}/client/{client_id}', [ServiceProviderController::class, 'viewRequest'])->name('provider.serviceRequest.view');
     Route::post('/provider/request/{id}', [ServiceProviderController::class, 'rejectRequest'])->name('provider.serviceRequest.reject');
     Route::post('/provider/request/quotation/{serviceRequest}', [ServiceProviderController::class, 'storeQuotation'])->name('provider.storeQuotation');
+    Route::put('/provider/quotation/{quotationId}', [ServiceProviderController::class, 'reQuote'])->name('provider.reQuote');
 });

@@ -37,7 +37,7 @@
                 <div class="col-md-9">
                     <div class="card mb-3">
                         <div class="card-header">
-                            Assigned Tasks
+                            Tasks
                         </div>
                         <div class="card-body">
                             <div class="table-responsive">
@@ -70,6 +70,10 @@
                                                 @if($task->status === 'assigned')
                                                 <a href="{{ route('provider.serviceRequest.view', ['task_id' => $task->id, 'client_id' => $task->client_id]) }}" class="btn btn-sm btn-primary">Manage</a>
                                                 @elseif($task->status === 'quoted')
+                                                <a href="{{ route('provider.serviceRequest.view', ['task_id' => $task->id, 'client_id' => $task->client_id]) }}" class="btn btn-sm btn-info">View</a>
+                                                @elseif($task->status === 're-quoted')
+                                                <a href="{{ route('provider.serviceRequest.view', ['task_id' => $task->id, 'client_id' => $task->client_id]) }}" class="btn btn-sm btn-info">View</a>
+                                                @elseif($task->status === 'confirmed')
                                                 <a href="{{ route('provider.serviceRequest.view', ['task_id' => $task->id, 'client_id' => $task->client_id]) }}" class="btn btn-sm btn-info">View</a>
                                                 @elseif($task->status === 'new-quote-requested')
                                                 <a href="{{ route('provider.serviceRequest.view', ['task_id' => $task->id, 'client_id' => $task->client_id]) }}" class="btn btn-sm btn-secondary">Requote</a>

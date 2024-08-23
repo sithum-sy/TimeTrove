@@ -193,7 +193,7 @@ class SchedulerController extends Controller
             $query->where('service_category_id', $serviceCategoryId);
         })->get()->sortBy('name');
 
-        $quotation = Quotation::where('service_request_id', $serviceRequest->id)->first();
+        $quotation = Quotation::where('service_request_id', $serviceRequest->id)->latest()->first();
 
         return view('scheduler/client-request-view', [
             'serviceRequest' => $serviceRequest,
@@ -213,9 +213,9 @@ class SchedulerController extends Controller
         return redirect('home')->with('status', 'Service provider assigned successfully.');
     }
 
-    public function requestNewQuote(Request $request, $request_id)
+    public function requestNewQuote(Request $request, $requestId)
     {
-        $serviceRequest = ServiceRequest::findOrFail($request_id);
+        $serviceRequest = ServiceRequest::findOrFail($requestId);
 
         $serviceProviderId = $request->input('service_provider_id');
         if ($serviceProviderId) {
@@ -224,6 +224,20 @@ class SchedulerController extends Controller
         $serviceRequest->status = 'new-quote-requested';
         $serviceRequest->save();
 
-        return redirect('home')->with('status', 'Service provider assigned successfully.');
+        return redirect('home')->with('status', 'New quote requested.');
+    }
+
+    public function passToClient(Request $request, $requestId)
+    {
+        $serviceRequest = ServiceRequest::findOrFail($requestId);
+
+        $serviceProviderId = $request->input('service_provider_id');
+        if ($serviceProviderId) {
+            $serviceRequest->service_provider_id = $serviceProviderId;
+        }
+        $serviceRequest->status = 'pending-approval';
+        $serviceRequest->save();
+
+        return redirect('home')->with('status', 'Quote passed to client successfully.');
     }
 }

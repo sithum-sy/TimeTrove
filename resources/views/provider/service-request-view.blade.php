@@ -98,7 +98,7 @@
                         </div>
                     </div>
                 </div>
-                @elseif ($serviceRequest->status === 'quoted')
+                @elseif ($serviceRequest->status === 'quoted' || $serviceRequest->status === 'confirmed')
                 <div class="col-md-8">
                     <div class="card mb-3">
                         <div class="card-header">
@@ -145,6 +145,52 @@
                     <div class="card mb-3">
                         <div class="card-header">
                             Quotation For Service Request
+                        </div>
+                        <div class="card-body">
+                            <form action="{{ route('provider.reQuote', $quotation->id) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="service_provider_id" value="{{ auth()->user()->id }}">
+
+                                <div class="mb-3">
+                                    <label for="estimated_hours" class="form-label">Estimated Hours</label>
+                                    <input type="number" class="form-control" id="estimated_hours" name="estimated_hours" value="{{ $quotation->estimated_hours ?? '' }}">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="hourly_rate" class="form-label">Hourly Rate (Rs)</label>
+                                    <input type="number" class="form-control" id="hourly_rate" name="hourly_rate" value="{{ $quotation->hourly_rate ?? '' }}">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="materials_cost" class="form-label">Materials Cost (Rs)</label>
+                                    <input type="number" class="form-control" id="materials_cost" name="materials_cost" value="{{ $quotation->materials_cost ?? '' }}">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="additional_charges" class="form-label">Additional Charges (Rs)</label>
+                                    <input type="number" class="form-control" id="additional_charges" name="additional_charges" value="{{ $quotation->additional_charges ?? '0' }}">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="total_charges" class="form-label"><strong>Total Charges (Rs)</strong></label>
+                                    <input type="number" class="form-control" id="total_charges" name="total_charges" value="{{ $quotation->total_charges ?? '' }}">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="notes" class="form-label">Notes</label>
+                                    <textarea class="form-control" id="notes" name="notes" rows="3">{{ $quotation->notes ?? '' }}</textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Send Updated Quotation</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                @elseif ($serviceRequest->status === 're-quoted')
+                <div class="col-md-8">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            Re-Quotation For Service Request
                         </div>
                         <div class="card-body">
                             @csrf

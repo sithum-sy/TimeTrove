@@ -43,21 +43,23 @@ class HomeController extends Controller
         // Retrieve service requests for the authenticated client, including related service categories
         $serviceRequests = ServiceRequest::where('client_id', Auth::id())
             ->with('serviceCategory')
+            ->orderBy('updated_at', 'desc')
             ->get();
+
 
         // Retrieve all service categories
         $serviceCategories = ServiceCategory::all();
 
         // Retrieve all pending service requests with related client and service category,
         // ordered by date and paginated with 8 requests per page
-        $clientServiceRequests = ServiceRequest::whereIn('status', ['pending', 'quoted'])
+        $clientServiceRequests = ServiceRequest::whereIn('status', ['pending', 'quoted', 're-quoted', 'pending-approval'])
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc')
             ->paginate(8);
 
         // Retrieve assigned tasks for the logged-in service provider
         $assignedTasks = ServiceRequest::where('service_provider_id', Auth::id())
-            ->whereIn('status', ['assigned', 'quoted', 'new-quote-requested'])
+            ->whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'completed'])
             ->with(['client', 'serviceCategory'])
             ->paginate(8);
 
