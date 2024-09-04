@@ -42,8 +42,8 @@
                 </div>
                 <div class="card-body">
                     <p>Contact our support team:</p>
-                    <p><i class="fas fa-phone"></i> +1 (123) 456-7890</p>
-                    <p><i class="fas fa-envelope"></i> support@example.com</p>
+                    <p><i class="fas fa-phone"></i> +94 (011) 456-7890</p>
+                    <p><i class="fas fa-envelope"></i> support@timetrove.com</p>
                 </div>
             </div>
         </div>
