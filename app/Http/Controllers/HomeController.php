@@ -38,7 +38,8 @@ class HomeController extends Controller
     public function index()
     {
         // Retrieve all users with the role of 'scheduler'
-        $schedulers = User::where('role', User::USER_ROLE_SCHEDULER)->get();
+
+        $schedulers = User::where('role', User::USER_ROLE_SCHEDULER)->orderBy('updated_at', 'desc')->paginate(8);
 
         // Retrieve service requests for the authenticated client, including related service categories
         $serviceRequests = ServiceRequest::where('client_id', Auth::id())
