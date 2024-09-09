@@ -26,9 +26,14 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     });
     Route::middleware([CheckSchedulerUserRole::class])->group(function () {
         Route::get('/scheduler/service-provider', [SchedulerController::class, 'serviceProviderIndex'])->name('scheduler.serviceProvider');
-        Route::get('/scheduler/service-provider/form1', [SchedulerController::class, 'serviceProviderForm1'])->name('scheduler.serviceProviderForm1');
-        Route::post('/scheduler/service-provider/form2', [SchedulerController::class, 'serviceProviderForm2'])->name('scheduler.serviceProviderForm2');
-        Route::post('/scheduler/service-provider/store', [SchedulerController::class, 'serviceProviderStore'])->name('scheduler.serviceProvider.store');
+        Route::get('/scheduler/service-provider/form1', [ServiceProviderController::class, 'serviceProviderForm1'])->name('scheduler.serviceProviderForm1');
+        Route::post('/scheduler/service-provider/form2', [ServiceProviderController::class, 'serviceProviderForm2'])->name('scheduler.serviceProviderForm2');
+        Route::post('/scheduler/service-provider/store', [ServiceProviderController::class, 'serviceProviderStore'])->name('scheduler.serviceProvider.store');
+        Route::delete('/scheduler/service-provider/delete/{id}', [ServiceProviderController::class, 'deleteServiceProvider'])->name('scheduler.serviceProvider.delete');
+        Route::get('/scheduler/service-provider/status/{id}', [ServiceProviderController::class, 'toggleStatus'])->name('scheduler.serviceProvider.status');
+        Route::get('/scheduler/service-provider/view/{id}', [ServiceProviderController::class, 'viewServiceProvider'])->name('scheduler.serviceProvider.view');
+        Route::get('/scheduler/service-provider/edit/{id}', [ServiceProviderController::class, 'editServiceProvider'])->name('scheduler.serviceProvider.edit');
+        Route::put('/scheduler/service-provider/update/{id}', [ServiceProviderController::class, 'updateServiceProvider'])->name('scheduler.serviceProvider.update');
         // Route::post('/scheduler/assign-providers', [SchedulerController::class, 'assignProviders'])->name('scheduler.assignProviders');
         Route::post('/scheduler/assign-provider/{request_id}', [SchedulerController::class, 'assignProvider'])->name('scheduler.assignProvider');
         Route::get('/service-request/{request_id}/client/{client_id}', [SchedulerController::class, 'viewRequest'])->name('scheduler.singleRequest.view');
@@ -45,6 +50,9 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
         Route::post('/home/request/reject/{requestId}/', [ClientController::class, 'rejectQuote'])->name('client.rejectQuote');
         Route::get('/home/request/complete/{requestId}/', [ClientController::class, 'completeServiceRequest'])->name('client.completeServiceRequest');
         // Route::post('/home/request/rate/{requestId}/', [ClientController::class, 'rateService'])->name('client.rateService');
+        Route::get('/profile', [ClientController::class, 'profileView'])->name('client.profileView');
+        Route::get('/profile/edit', [ClientController::class, 'editProfile'])->name('client.editProfile');
+        Route::put('/profile/update', [ClientController::class, 'updateProfile'])->name('client.updateProfile');
     });
     Route::middleware([CheckServiceProviderUserRole::class])->group(function () {
         Route::get('/provider/request/{task_id}/client/{client_id}', [ServiceProviderController::class, 'viewRequest'])->name('provider.serviceRequest.view');

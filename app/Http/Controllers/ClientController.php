@@ -6,6 +6,7 @@ use App\Models\Quotation;
 use App\Models\Rating;
 use App\Models\ServiceCategory;
 use App\Models\ServiceRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -31,6 +32,52 @@ class ClientController extends Controller
             'serviceRequests' => $serviceRequests,
             'serviceCategories' => $serviceCategories
         ]);
+    }
+
+    public function profileView()
+    {
+        $client = Auth::user();
+
+        if ($client->role !== User::USER_ROLE_CLIENT) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return view('client.view', [
+            'client' => $client,
+        ]);
+    }
+
+    public function editProfile()
+    {
+        $client = Auth::user();
+
+        return view('client.edit', [
+            'client' => $client,
+        ]);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $client = Auth::user();
+
+        if (! $client instanceof User || $client->role !== User::USER_ROLE_CLIENT) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $validatedData = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $client->id,
+            'phone_number' => 'required|string|max:20',
+            'date_of_birth' => 'required|date',
+            'address' => 'required|string|max:255',
+            'gender' => 'required|in:male,female,other',
+        ]);
+
+        $client->update($validatedData);
+
+        return redirect()->route('client.profileView')
+            ->with('status', 'Profile updated successfully!');
     }
 
     /**

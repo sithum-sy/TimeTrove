@@ -55,7 +55,11 @@
                     Service Providers
                 </div>
                 <div class="card-body">
-
+                    @if (session('status'))
+                    <div class="alert alert-success" role="alert">
+                        {{ session('status') }}
+                    </div>
+                    @endif
                     <table class="table table-bordered table-striped table-hover">
                         <thead class="thead-dark">
                             <tr>
@@ -85,14 +89,14 @@
                                 <td>{{ $serviceProvider->is_active ? 'Active' : 'Inactive' }}</td>
                                 <td>
                                     <!-- Action buttons -->
-                                    <a href="" class="btn btn-sm btn-primary">View</a>
-                                    <a href="" class="btn btn-sm btn-warning">Edit</a>
-                                    <form action="" method="POST" style="display:inline-block;">
+                                    <a href="{{ route('scheduler.serviceProvider.view', $serviceProvider->id) }}" class="btn btn-sm btn-primary">View</a>
+                                    <a href="{{ route('scheduler.serviceProvider.edit', $serviceProvider->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                    <form action="{{ route('scheduler.serviceProvider.delete', $serviceProvider->id) }}" method="POST" style="display:inline-block;">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">Delete</button>
                                     </form>
-                                    <form action="" method="POST" style="display:inline-block;">
+                                    <form action="{{ route('scheduler.serviceProvider.status', $serviceProvider->id) }}" method="GET" style="display:inline-block;">
                                         @csrf
                                         <button type="submit" class="btn btn-sm {{ $serviceProvider->is_active ? 'btn-secondary' : 'btn-success' }}">
                                             {{ $serviceProvider->is_active ? 'Deactivate' : 'Activate' }}

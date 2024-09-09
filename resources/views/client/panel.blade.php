@@ -16,8 +16,8 @@
                     <button type="button" class="btn btn-success btn-block mb-2" data-bs-toggle="modal" data-bs-target="#addServiceRequestModal">
                         <i class="fas fa-plus-circle"></i> New Service Request
                     </button>
-                    <a href="#" class="btn btn-info btn-block mb-2">
-                        <i class="fas fa-user-cog"></i> Profile Settings
+                    <a href="{{ route('client.profileView') }}" class="btn btn-info btn-block mb-2">
+                        <i class="fas fa-user-cog"></i> View Profile
                     </a>
                     <a href="#" class="btn btn-warning btn-block">
                         <i class="fas fa-history"></i> View History
