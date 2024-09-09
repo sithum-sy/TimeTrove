@@ -55,6 +55,11 @@
                     <h5 class="card-title mb-0">Your Service Requests</h5>
                 </div>
                 <div class="card-body">
+                    @if (session('status'))
+                    <div class="alert alert-success" role="alert">
+                        {{ session('status') }}
+                    </div>
+                    @endif
                     <div class="table-responsive">
                         <table class="table table-striped table-hover">
                             <thead class="thead-light">

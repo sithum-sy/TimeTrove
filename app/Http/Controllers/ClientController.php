@@ -161,17 +161,19 @@ class ClientController extends Controller
      */
     public function deleteRequest($id)
     {
-        // Find the service request by ID, or fail if not found
         $serviceRequest = ServiceRequest::findOrFail($id);
 
-        // Authorize the user to delete the service request
-        $this->authorize('delete', $serviceRequest);
+        if ($serviceRequest->client_id !== auth()->id()) {
+            return redirect()->back()->with('error', 'You are not authorized to cancel this request.');
+        }
 
-        // Delete the service request record
+        if ($serviceRequest->status === 'completed') {
+            return redirect()->back()->with('error', 'Cannot cancel a completed service request.');
+        }
+
         $serviceRequest->delete();
 
-        // Redirect back to the client panel with a success message
-        return redirect()->route('client.panel')->with('success', 'Service request deleted successfully.');
+        return redirect()->route('home')->with('status', 'Service request cancelled successfully.');
     }
 
     public function singleRequest($requestId)

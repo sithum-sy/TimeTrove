@@ -4,19 +4,27 @@
 <div class="container-fluid mt-4">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>Service Request Details: {{ $serviceRequest->serviceCategory->name }}</h2>
-                <form action="" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to cancel this request?');">
-                    @csrf
-                    <button type=" submit" class="btn btn-danger">Cancel Request</button>
-                </form>
-            </div>
-            {{-- Success Message --}}
+            <!-- Display Success Message -->
             @if(session('status'))
             <div class="alert alert-success">
                 {{ session('status') }}
             </div>
             @endif
+
+            <!-- Display Error Message -->
+            @if(session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+            @endif
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Service Request Details: {{ $serviceRequest->serviceCategory->name }}</h2>
+                <form action="{{ route('client.deleteRequest', $serviceRequest->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to cancel this request?');">
+                    @csrf
+                    @method('DELETE')
+                    <button type=" submit" class="btn btn-danger">Cancel Request</button>
+                </form>
+            </div>
             <div class="row">
                 <div class="col-md-4">
                     <div class="card mb-3">
