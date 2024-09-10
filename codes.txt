@@ -126,3 +126,4 @@ Tasks
 Comments are added to understand the code easily. You guys should do that too. 
 
 
+send email reminders - php artisan email:send-service-request-reminders

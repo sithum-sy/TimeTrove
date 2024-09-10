@@ -9,6 +9,10 @@ use App\Models\ServiceRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ServiceProviderConfirmationEmail;
+use App\Mail\ClientConfirmationEmail;
+
 
 class ClientController extends Controller
 {
@@ -215,6 +219,9 @@ class ClientController extends Controller
         }
         $serviceRequest->status = 'confirmed';
         $serviceRequest->save();
+
+        Mail::to($serviceRequest->client->email)->send(new ClientConfirmationEmail($serviceRequest));
+        Mail::to($serviceRequest->serviceProvider->email)->send(new ServiceProviderConfirmationEmail($serviceRequest));
 
         return redirect('home')->with('status', 'Appointment for service request confirmed successfully.');
     }

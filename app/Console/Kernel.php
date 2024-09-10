@@ -30,7 +30,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('your:command')->everyMinute();
 
         // Example to send reminders:
-        $schedule->command('reminders:send')->dailyAt('12:30'); // Modify as per your requirement
+        $schedule->command('email:send-service-request-reminders')->daily(); // Modify as per your requirement
     }
 
     /**
