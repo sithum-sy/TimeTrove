@@ -1,69 +1,72 @@
 @extends('layouts.app')
 
+@section('title', 'Scheduler Dashboard')
+
 @section('content')
 <div class="container-fluid mt-4">
-    <h2 class="mb-4">Scheduler Control Panel</h2>
+    <h1 class="mb-4">Scheduler Dashboard</h1>
     <div class="row">
-        <!-- Left column - Task handling -->
-        <div class="col-md-3">
+        <!-- Left Column - Control Panels -->
+        <div class="col-md-3 mb-4">
             <div class="card mb-3">
-                <div class="card-header">Appointment Management</div>
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
+                </div>
                 <div class="card-body">
-                    <button type="button" class="btn btn-primary btn-sm mb-2 w-100" data-bs-toggle="modal" data-bs-target="#scheduleAppointmentModal">
-                        Schedule Appointment
+                    <button type="button" class="btn btn-success btn-block mb-2" data-bs-toggle="modal" data-bs-target="#scheduleAppointmentModal">
+                        <i class="fas fa-calendar-plus"></i> Schedule Appointment
                     </button>
-                    <a href="" class="btn btn-secondary btn-sm w-100">View Appointments</a>
+                    <a href="{{ route('scheduler.serviceProvider') }}" class="btn btn-info btn-block mb-2">
+                        <i class="fas fa-user-tie"></i> Manage Service Providers
+                    </a>
+                    <a href="#" class="btn btn-warning btn-block">
+                        <i class="fas fa-users"></i> Manage Clients
+                    </a>
                 </div>
             </div>
+
             <div class="card mb-3">
-                <div class="card-header">Client Management</div>
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="card-title mb-0">Statistics</h5>
+                </div>
                 <div class="card-body">
-                    <a href="" class="btn btn-primary btn-sm w-100">Manage Clients</a>
+                    <p><strong>Total Appointments:</strong> <span id="totalAppointments">Loading...</span></p>
+                    <p><strong>Upcoming Appointments:</strong> <span id="upcomingAppointments">Loading...</span></p>
+                    <p><strong>Total Clients:</strong> <span id="totalClients">Loading...</span></p>
                 </div>
             </div>
-            <div class="card mb-3">
-                <div class="card-header">Payment Management</div>
-                <div class="card-body">
-                    <a href="" class="btn btn-primary btn-sm w-100">Manage Payments</a>
+
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">Need Help?</h5>
                 </div>
-            </div>
-            <!-- <div class="card mb-3">
-                <div class="card-header">Reminders</div>
                 <div class="card-body">
-                    <button type="button" class="btn btn-primary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#sendReminderModal">
-                        Send Reminder
-                    </button>
-                </div>
-            </div> -->
-            <div class="card mb-3">
-                <div class="card-header">Service Provider Management</div>
-                <div class="card-body">
-                    <a href="{{ route('scheduler.serviceProvider') }}" class="btn btn-primary btn-sm w-100">Manage Service Providers</a>
+                    <p>Contact our support team:</p>
+                    <p><i class="fas fa-phone"></i> +94 (011) 456-7890</p>
+                    <p><i class="fas fa-envelope"></i> support@timetrove.com</p>
                 </div>
             </div>
         </div>
 
-        <!-- Right column - User Request Table and Stats -->
+        <!-- Right Column - Appointments and Quotations Tables -->
         <div class="col-md-9">
-            <div class="card mb-3">
-                <div class="card-header">
-                    Upcoming Appointments
+            <div class="card mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="card-title mb-0">Upcoming Appointments</h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-striped table-hover">
-                            <thead class="thead-dark">
+                        <table class="table table-striped table-hover">
+                            <thead class="thead-light">
                                 <tr>
-                                    <th scope="col">ID</th>
-                                    <th scope="col">Client Name</th>
-                                    <th scope="col">Service Category</th>
-                                    <th scope="col">Description</th>
-                                    <th scope="col">Location</th>
-                                    <th scope="col">Date</th>
-                                    <th scope="col">Time</th>
-                                    <th scope="col">Pictures</th>
-                                    <th scope="col">Status</th>
-                                    <th scope="col">Actions</th>
+                                    <th>ID</th>
+                                    <th>Client Name</th>
+                                    <th>Service</th>
+                                    <th>Description</th>
+                                    <th>Location</th>
+                                    <th>Date & Time</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -72,18 +75,10 @@
                                     <td>{{ $request->id }}</td>
                                     <td>{{ $request->client->first_name }} {{ $request->client->last_name }}</td>
                                     <td>{{ $request->serviceCategory->name }}</td>
-                                    <td>{{ $request->description }}</td>
+                                    <td>{{ Str::limit($request->description, 30) }}</td>
                                     <td>{{ $request->location }}</td>
-                                    <td>{{ $request->date }}</td>
-                                    <td>{{ $request->time }}</td>
-                                    <td>
-                                        @if($request->request_picture)
-                                        <img src="{{ asset('storage/' . $request->request_picture) }}" alt="Request Picture" style="max-width: 50px; max-height: 50px;">
-                                        @else
-                                        No picture
-                                        @endif
-                                    </td>
-                                    <td>{{ $request->status }}</td>
+                                    <td>{{ $request->date }} at {{ $request->time }}</td>
+                                    <td><span class="badge bg-{{ $request->status == 'pending' ? 'warning' : 'success' }}">{{ ucfirst($request->status) }}</span></td>
                                     <td>
                                         <a href="{{ route('scheduler.singleRequest.view', ['request_id' => $request->id, 'client_id' => $request->client_id]) }}" class="btn btn-primary btn-sm">Assign</a>
                                     </td>
@@ -92,31 +87,29 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- Pagination Links -->
-                    <div class=" d-flex justify-content-center">
+                    <div class="d-flex justify-content-center">
                         {{ $clientServiceRequests->links('vendor.pagination.bootstrap-4') }}
                     </div>
                 </div>
             </div>
-            <div class="card mb-3">
-                <div class="card-header">
-                    Quotations by Service Providers
+
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="card-title mb-0">Quotations by Service Providers</h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table table-bordered table-striped table-hover">
-                            <thead class="thead-dark">
+                        <table class="table table-striped table-hover">
+                            <thead class="thead-light">
                                 <tr>
-                                    <th scope="col">ID</th>
-                                    <th scope="col">Client Name</th>
-                                    <th scope="col">Service Category</th>
-                                    <th scope="col">Description</th>
-                                    <th scope="col">Location</th>
-                                    <th scope="col">Date</th>
-                                    <th scope="col">Time</th>
-                                    <th scope="col">Pictures</th>
-                                    <th scope="col">Status</th>
-                                    <th scope="col">Actions</th>
+                                    <th>ID</th>
+                                    <th>Client Name</th>
+                                    <th>Service</th>
+                                    <th>Description</th>
+                                    <th>Location</th>
+                                    <th>Date & Time</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -126,18 +119,10 @@
                                     <td>{{ $request->id }}</td>
                                     <td>{{ $request->client->first_name }} {{ $request->client->last_name }}</td>
                                     <td>{{ $request->serviceCategory->name }}</td>
-                                    <td>{{ $request->description }}</td>
+                                    <td>{{ Str::limit($request->description, 30) }}</td>
                                     <td>{{ $request->location }}</td>
-                                    <td>{{ $request->date }}</td>
-                                    <td>{{ $request->time }}</td>
-                                    <td>
-                                        @if($request->request_picture)
-                                        <img src="{{ asset('storage/' . $request->request_picture) }}" alt="Request Picture" style="max-width: 50px; max-height: 50px;">
-                                        @else
-                                        No picture
-                                        @endif
-                                    </td>
-                                    <td>{{ $request->status }}</td>
+                                    <td>{{ $request->date }} at {{ $request->time }}</td>
+                                    <td><span class="badge bg-{{ $request->status == 'pending-approval' ? 'info' : 'warning' }}">{{ ucfirst($request->status) }}</span></td>
                                     <td>
                                         <a href="{{ route('scheduler.singleRequest.view', ['request_id' => $request->id, 'client_id' => $request->client_id]) }}" class="btn btn-primary btn-sm">View</a>
                                     </td>
@@ -147,50 +132,76 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- Pagination Links -->
-                    <div class=" d-flex justify-content-center">
+                    <div class="d-flex justify-content-center">
                         {{ $clientServiceRequests->links('vendor.pagination.bootstrap-4') }}
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">Statistics</div>
-                        <div class="card-body">
-                            <ul class="list-group list-group-flush">
-                                <li class="list-group-item">Total Appointments: <span id="totalAppointments">Loading...</span></li>
-                                <li class="list-group-item">Upcoming Appointments: <span id="upcomingAppointments">Loading...</span></li>
-                                <li class="list-group-item">Total Clients: <span id="totalClients">Loading...</span></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header">Recent Activity</div>
-                        <div class="card-body">
-                            <ul class="list-group list-group-flush" id="recentActivity">
-                                <li class="list-group-item">Loading recent activity...</li>
-                            </ul>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Schedule Appointment Modal -->
+<div class="modal fade" id="scheduleAppointmentModal" tabindex="-1" aria-labelledby="scheduleAppointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="scheduleAppointmentModalLabel">Schedule New Appointment</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="scheduleAppointmentForm" method="POST" action="#">
+                @csrf
+                <div class="modal-body">
+                    <!-- Add form fields for scheduling an appointment -->
+                    <div class="mb-3">
+                        <label for="client" class="form-label">Client</label>
+                        <select class="form-select" id="client" name="client_id" required>
+                            <option value="" disabled selected>Select a client</option>
+                            <!-- Add options dynamically from your client list -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="service_category" class="form-label">Service Category</label>
+                        <select class="form-select" id="service_category" name="service_category_id" required>
+                            <option value="" disabled selected>Select a service</option>
+                            <!-- Add options dynamically from your service categories -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="location" class="form-label">Location</label>
+                        <input type="text" class="form-control" id="location" name="location" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="date" name="date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="time" class="form-label">Time</label>
+                        <input type="time" class="form-control" id="time" name="time" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Schedule Appointment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @endsection
 
-
-
+@section('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Populate statistics
-        document.getElementById('totalAppointments').textContent = '123';
-        document.getElementById('upcomingAppointments').textContent = '45';
-        document.getElementById('totalClients').textContent = '67';
+        document.getElementById('totalAppointments').textContent = '{{ $clientServiceRequests->count() }}';
+        document.getElementById('upcomingAppointments').textContent = '{{ $clientServiceRequests->where("status", "pending")->count() }}';
+        document.getElementById('totalClients').textContent = '{{ App\Models\User::count() }}';
 
         // Handle appointment scheduling form submission
         document.getElementById('scheduleAppointmentForm').addEventListener('submit', function(e) {
@@ -199,13 +210,6 @@
             alert('Appointment scheduled successfully!');
             $('#scheduleAppointmentModal').modal('hide');
         });
-
-        // Handle reminder form submission
-        document.getElementById('sendReminderForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            // Add logic to handle form submission
-            alert('Reminder sent successfully!');
-            $('#sendReminderModal').modal('hide');
-        });
     });
 </script>
+@endsection

@@ -136,8 +136,13 @@ class SchedulerController extends Controller
     {
         $serviceProviders = User::where('role', User::USER_ROLE_SERVICE_PROVIDER)->get();
 
+        $activeServiceProvidersCount = User::where('role', User::USER_ROLE_SERVICE_PROVIDER)
+            ->where('is_active', 1)
+            ->count();
+
         return view('scheduler/service_provider/index', [
             'serviceProviders' => $serviceProviders,
+            'activeServiceProvidersCount' => $activeServiceProvidersCount,
         ]);
     }
 
