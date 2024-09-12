@@ -30,9 +30,9 @@
                     <h5 class="card-title mb-0">Statistics</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Total Users:</strong> <span id="totalUsers"></span></p>
-                    <p><strong>Total Appointments:</strong> <span id="totalAppointments"></span></p>
-                    <p><strong>Active Services:</strong> <span id="activeServices"></span></p>
+                    <p><strong>Total Schedulers:</strong> <span id="totalUsers">{{ $schedulers->count() }}</span></p>
+                    <p><strong>Active Schedulers:</strong> <span id="totalAppointments">{{ $activeSchedulersCount }}</span></p>
+                    <p><strong>Active Service Categories:</strong> <span id="activeServices">{{ $serviceCategories->count() }}</span></p>
                 </div>
             </div>
 
@@ -84,14 +84,14 @@
                                     <td>{{ $scheduler->gender }}</td>
                                     <td><span class="badge bg-{{ $scheduler->is_active ? 'success' : 'secondary' }}">{{ $scheduler->is_active ? 'Active' : 'Inactive' }}</span></td>
                                     <td>
-                                        <a href="" class="btn btn-sm btn-primary">View</a>
-                                        <a href="" class="btn btn-sm btn-warning">Edit</a>
-                                        <form action="" method="POST" class="d-inline">
+                                        <a href="{{ route('scheduler.view', $scheduler->id) }}" class="btn btn-sm btn-primary">View</a>
+                                        <a href="{{ route('scheduler.edit', $scheduler->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                        <form action="{{ route('scheduler.delete', $scheduler->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this scheduler?')">Delete</button>
                                         </form>
-                                        <form action="" method="POST" class="d-inline">
+                                        <form action="{{ route('scheduler.status', $scheduler->id) }}" method="GET" class="d-inline">
                                             @csrf
                                             <button type="submit" class="btn btn-sm {{ $scheduler->is_active ? 'btn-secondary' : 'btn-success' }}">
                                                 {{ $scheduler->is_active ? 'Deactivate' : 'Activate' }}
@@ -154,7 +154,6 @@
                             <option value="" disabled selected>Select Gender</option>
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
-                            <option value="Other">Other</option>
                         </select>
                     </div>
                 </div>

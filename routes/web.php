@@ -23,6 +23,11 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::middleware([CheckAdminUserRole::class])->group(function () {
         Route::post('/scheduler/store', [SchedulerController::class, 'store'])->name('scheduler.store');
+        Route::get('/scheduler/view/{id}', [SchedulerController::class, 'viewScheduler'])->name('scheduler.view');
+        Route::get('/scheduler/status/{id}', [SchedulerController::class, 'toggleStatus'])->name('scheduler.status');
+        Route::get('/scheduler/edit/{id}', [SchedulerController::class, 'editScheduler'])->name('scheduler.edit');
+        Route::put('/scheduler/update/{id}', [SchedulerController::class, 'updateScheduler'])->name('scheduler.update');
+        Route::delete('/scheduler/delete/{id}', [SchedulerController::class, 'deleteScheduler'])->name('scheduler.delete');
     });
     Route::middleware([CheckSchedulerUserRole::class])->group(function () {
         Route::get('/scheduler/service-provider', [SchedulerController::class, 'serviceProviderIndex'])->name('scheduler.serviceProvider');

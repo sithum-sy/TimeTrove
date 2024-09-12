@@ -40,6 +40,9 @@ class HomeController extends Controller
         // Retrieve all users with the role of 'scheduler'
 
         $schedulers = User::where('role', User::USER_ROLE_SCHEDULER)->orderBy('updated_at', 'desc')->paginate(8);
+        $activeSchedulersCount = User::where('role', User::USER_ROLE_SCHEDULER)
+            ->where('is_active', 1)
+            ->count();
 
         // Retrieve service requests for the authenticated client, including related service categories
         $serviceRequests = ServiceRequest::where('client_id', Auth::id())
@@ -49,7 +52,7 @@ class HomeController extends Controller
 
 
         // Retrieve all service categories
-        $serviceCategories = ServiceCategory::all();
+        $serviceCategories = ServiceCategory::where('is_active', 1)->get();
 
         // Retrieve all pending service requests with related client and service category,
         // ordered by date and paginated with 8 requests per page
@@ -71,6 +74,7 @@ class HomeController extends Controller
             'serviceCategories' => $serviceCategories,
             'clientServiceRequests' => $clientServiceRequests,
             'assignedTasks' => $assignedTasks,
+            'activeSchedulersCount' => $activeSchedulersCount,
         ]);
     }
 }

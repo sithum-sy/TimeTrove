@@ -15,14 +15,7 @@ use Illuminate\Support\Facades\Hash;
 
 class SchedulerController extends Controller
 {
-    /**
-     * Store a new scheduler in the database.
-     *
-     * Validates the request data, creates a new scheduler user, and redirects to the home route with a success message.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    //Store a new scheduler
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -40,7 +33,6 @@ class SchedulerController extends Controller
             'gender' => ['required', 'string'],
         ]);
 
-        // Create a new User with the role of 'scheduler'
         $user = User::create([
             'first_name' => $validatedData['first_name'],
             'last_name' => $validatedData['last_name'],
@@ -52,8 +44,8 @@ class SchedulerController extends Controller
             'gender' => $validatedData['gender'],
             'password' => Hash::make($validatedData['email']),
             'created_by' => Auth::check() ? Auth::id() : null,
-            'is_active' => true, // Default to active
-            'is_default_password_changed' => false, // Default to not changed
+            'is_active' => true,
+            'is_default_password_changed' => false,
         ]);
 
         return redirect()->route('home')->with(
@@ -62,13 +54,84 @@ class SchedulerController extends Controller
         );
     }
 
-    /**
-     * Display the list of service providers.
-     *
-     * Retrieves all users with the role of 'service provider' and passes them to the view.
-     *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
+    //view a scheduler
+    public function viewScheduler($id)
+    {
+        $scheduler = User::where(
+            'role',
+            User::USER_ROLE_SCHEDULER
+        )->findOrFail($id);
+
+        return view('scheduler.view', [
+            'scheduler' => $scheduler,
+        ]);
+    }
+
+    //toggle 'is_active' status
+    public function toggleStatus($id)
+    {
+        $scheduler = User::where(
+            'role',
+            User::USER_ROLE_SCHEDULER
+        )->findOrFail($id);
+
+        $scheduler->is_active = !$scheduler->is_active;
+        $scheduler->save();
+
+        return redirect()->route('home')->with('status', 'Scheduler status updated successfully.');
+    }
+
+    //go to edit view of a scheduler
+    public function editScheduler($id)
+    {
+        $scheduler = User::where(
+            'role',
+            User::USER_ROLE_SCHEDULER
+        )->findOrFail($id);
+
+        return view('scheduler.edit', compact('scheduler'));
+    }
+
+    //update the service provider details
+    public function updateScheduler(Request $request, $id)
+    {
+        $scheduler = User::where(
+            'role',
+            User::USER_ROLE_SCHEDULER
+        )->findOrFail($id);
+
+        $validatedData = $request->validate([
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $id,
+            'phone_number' => 'required|string|max:20',
+            'date_of_birth' => 'required|date',
+            'address' => 'required|string|max:255',
+            'gender' => 'required|in:male,female',
+            'is_active' => 'sometimes|boolean',
+        ]);
+
+        $validatedData['is_active'] = $request->boolean('is_active');
+
+        $scheduler->update($validatedData);
+
+        return redirect()->route('scheduler.view', $scheduler->id)
+            ->with('status', 'Scheduler data updated successfully!');
+    }
+
+    //delete a scheduler
+    public function deleteScheduler($id)
+    {
+        $scheduler = User::where('role', User::USER_ROLE_SCHEDULER)->findOrFail($id);
+        $scheduler->delete();
+
+        return redirect()->route('home')->with(
+            'status',
+            'Scheduler was deleted successfully.'
+        );
+    }
+
+    //Display the list of service providers
     public function serviceProviderIndex()
     {
         $serviceProviders = User::where('role', User::USER_ROLE_SERVICE_PROVIDER)->get();
@@ -79,7 +142,7 @@ class SchedulerController extends Controller
     }
 
 
-
+    //View a single service request which is to be assigned to relevant service provider
     public function viewRequest($request_id, $client_id)
     {
         $serviceRequest = ServiceRequest::where('id', $request_id)
@@ -88,9 +151,13 @@ class SchedulerController extends Controller
             ->firstOrFail();
 
         $serviceCategoryId = $serviceRequest->serviceCategory->id;
-        $serviceProviders = User::whereHas('serviceProviderServices', function ($query) use ($serviceCategoryId) {
-            $query->where('service_category_id', $serviceCategoryId);
-        })->get()->sortBy('name');
+        $serviceProviders = User::where('is_active', 1)
+            ->whereHas('serviceProviderServices', function ($query) use ($serviceCategoryId) {
+                $query->where('service_category_id', $serviceCategoryId);
+            })
+            ->get()
+            ->sortBy('name');
+
 
         $quotation = Quotation::where('service_request_id', $serviceRequest->id)->latest()->first();
 
@@ -101,6 +168,7 @@ class SchedulerController extends Controller
         ]);
     }
 
+    //assign service request to service provider
     public function assignProvider(Request $request, $request_id)
     {
         $serviceRequest = ServiceRequest::findOrFail($request_id);
@@ -112,6 +180,7 @@ class SchedulerController extends Controller
         return redirect('home')->with('status', 'Service provider assigned successfully.');
     }
 
+    //request a new quote from service provider
     public function requestNewQuote(Request $request, $requestId)
     {
         $serviceRequest = ServiceRequest::findOrFail($requestId);
@@ -126,6 +195,7 @@ class SchedulerController extends Controller
         return redirect('home')->with('status', 'New quote requested.');
     }
 
+    //pass the quote to be approved by client
     public function passToClient(Request $request, $requestId)
     {
         $serviceRequest = ServiceRequest::findOrFail($requestId);

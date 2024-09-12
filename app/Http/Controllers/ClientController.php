@@ -75,7 +75,7 @@ class ClientController extends Controller
             'phone_number' => 'required|string|max:20',
             'date_of_birth' => 'required|date',
             'address' => 'required|string|max:255',
-            'gender' => 'required|in:male,female,other',
+            'gender' => 'required|in:male,female',
         ]);
 
         $client->update($validatedData);

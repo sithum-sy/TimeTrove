@@ -27,14 +27,14 @@
                     <a href="" class="btn btn-primary btn-sm w-100">Manage Payments</a>
                 </div>
             </div>
-            <div class="card mb-3">
+            <!-- <div class="card mb-3">
                 <div class="card-header">Reminders</div>
                 <div class="card-body">
                     <button type="button" class="btn btn-primary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#sendReminderModal">
                         Send Reminder
                     </button>
                 </div>
-            </div>
+            </div> -->
             <div class="card mb-3">
                 <div class="card-header">Service Provider Management</div>
                 <div class="card-body">

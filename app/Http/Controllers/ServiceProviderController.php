@@ -15,25 +15,13 @@ use Illuminate\Support\Facades\Hash;
 
 class ServiceProviderController extends Controller
 {
-
-    /**
-     * Show the form for creating a new service provider (Step 1).
-     *
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
+    // Show the form for creating a new service provider (Step 1).
     public function serviceProviderForm1()
     {
         return view('scheduler/service_provider/form1');
     }
 
-    /**
-     * Show the form for creating a new service provider (Step 2).
-     *
-     * Validates request data and passes it to the view along with service categories.
-     *
-     * @param Request $request
-     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
-     */
+    //  Show the form for creating a new service provider (Step 2).
     public function serviceProviderForm2(Request $request)
     {
         $serviceCategories = ServiceCategory::all();
@@ -59,15 +47,7 @@ class ServiceProviderController extends Controller
         ]);
     }
 
-    /**
-     * Store a new service provider in the database.
-     *
-     * Validates the request data, creates a new user with the role of 'service provider',
-     * and associates it with the service provider's services. Uses a transaction to ensure data integrity.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    //    Store a new service provider
     public function serviceProviderStore(Request $request)
     {
         $validatedData = $request->validate([
@@ -86,7 +66,6 @@ class ServiceProviderController extends Controller
         ]);
 
         DB::transaction(function () use ($validatedData) {
-            // Create a new User with the role of 'service provider'
             $user = User::create([
                 'first_name' => $validatedData['first_name'],
                 'last_name' => $validatedData['last_name'],
@@ -119,17 +98,19 @@ class ServiceProviderController extends Controller
         );
     }
 
-    public function deleteServiceProvider($id)
+    //view service requests assigned for the service provider
+    public function panel()
     {
-        $serviceProvider = User::where('role', User::USER_ROLE_SERVICE_PROVIDER)->findOrFail($id);
-        $serviceProvider->delete();
+        $assignedTasks = ServiceProviderServices::with('serviceRequest')
+            ->where('service_provider_id', auth()->id())->where('status', 'assigned')
+            ->get();
 
-        return redirect()->route('scheduler.serviceProvider')->with(
-            'status',
-            'Service Provider was deleted successfully.'
-        );
+        return view('provider.panel', [
+            'assignedTasks' => $assignedTasks,
+        ]);
     }
 
+    // toggle 'is_active' status
     public function toggleStatus($id)
     {
         $serviceProvider = User::where(
@@ -143,6 +124,7 @@ class ServiceProviderController extends Controller
         return redirect()->route('scheduler.serviceProvider')->with('status', 'Service Provider status updated successfully.');
     }
 
+    //view a single service provier
     public function viewServiceProvider($id)
     {
         $serviceProvider = User::where(
@@ -155,6 +137,7 @@ class ServiceProviderController extends Controller
         ]);
     }
 
+    //go to edit view of a service provider
     public function editServiceProvider($id)
     {
         $serviceProvider = User::where(
@@ -165,6 +148,7 @@ class ServiceProviderController extends Controller
         return view('scheduler.service_provider.edit', compact('serviceProvider'));
     }
 
+    //update the service provider details
     public function updateServiceProvider(Request $request, $id)
     {
         $serviceProvider = User::where(
@@ -179,7 +163,7 @@ class ServiceProviderController extends Controller
             'phone_number' => 'required|string|max:20',
             'date_of_birth' => 'required|date',
             'address' => 'required|string|max:255',
-            'gender' => 'required|in:male,female,other',
+            'gender' => 'required|in:male,female',
             'is_active' => 'sometimes|boolean',
         ]);
 
@@ -191,17 +175,19 @@ class ServiceProviderController extends Controller
             ->with('status', 'Service provider updated successfully!');
     }
 
-    public function panel()
+    //delete a service provider
+    public function deleteServiceProvider($id)
     {
-        $assignedTasks = ServiceProviderServices::with('serviceRequest')
-            ->where('service_provider_id', auth()->id())->where('status', 'assigned')
-            ->get();
+        $serviceProvider = User::where('role', User::USER_ROLE_SERVICE_PROVIDER)->findOrFail($id);
+        $serviceProvider->delete();
 
-        return view('provider.panel', [
-            'assignedTasks' => $assignedTasks,
-        ]);
+        return redirect()->route('scheduler.serviceProvider')->with(
+            'status',
+            'Service Provider was deleted successfully.'
+        );
     }
 
+    //view a single request assigned for the service provider
     public function viewRequest($task_id, $client_id)
     {
         $serviceRequest = ServiceRequest::where('id', $task_id)
@@ -223,6 +209,7 @@ class ServiceProviderController extends Controller
         ]);
     }
 
+    //reject the assigned service request
     public function rejectRequest(Request $request, $request_id)
     {
 
@@ -235,6 +222,7 @@ class ServiceProviderController extends Controller
         return redirect('home')->with('status', 'Client service request rejected.');
     }
 
+    //store the quote data for a service request
     public function storeQuotation(Request $request, $serviceRequestId)
     {
         // Validate the request
@@ -247,12 +235,10 @@ class ServiceProviderController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        // Calculate the total charges
         $totalCharges = ($validated['estimated_hours'] * $validated['hourly_rate']) +
             $validated['materials_cost'] +
             $validated['additional_charges'];
 
-        // Store the data in the database
         Quotation::create([
             'service_request_id' => $serviceRequestId,
             'service_provider_id' => $validated['service_provider_id'],
@@ -270,13 +256,12 @@ class ServiceProviderController extends Controller
         $serviceRequest->status = 'quoted';
         $serviceRequest->save();
 
-        // Redirect back with a success message
         return redirect('home')->with('status', 'Quotation submitted successfully.');
     }
 
+    //edit and update the data of a quote
     public function reQuote(Request $request, $quotationId)
     {
-        // Validate the request
         $validated = $request->validate([
             'service_provider_id' => 'required|exists:users,id',
             'estimated_hours' => 'required|numeric',
@@ -286,15 +271,12 @@ class ServiceProviderController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        // Fetch the existing quotation
         $quotation = Quotation::findOrFail($quotationId);
 
-        // Calculate the total charges
         $totalCharges = ($validated['estimated_hours'] * $validated['hourly_rate']) +
             $validated['materials_cost'] +
             $validated['additional_charges'];
 
-        // Update the quotation with new data
         $quotation->update([
             'service_provider_id' => $validated['service_provider_id'],
             'estimated_hours' => $validated['estimated_hours'],
@@ -305,12 +287,10 @@ class ServiceProviderController extends Controller
             'notes' => $validated['notes'],
         ]);
 
-        // Update the service request status
         $serviceRequest = ServiceRequest::findOrFail($quotation->service_request_id);
         $serviceRequest->status = 're-quoted';
         $serviceRequest->save();
 
-        // Redirect back with a success message
         return redirect('home')->with('status', 'Quotation updated successfully.');
     }
 }
