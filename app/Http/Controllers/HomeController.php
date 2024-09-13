@@ -65,6 +65,7 @@ class HomeController extends Controller
         $assignedTasks = ServiceRequest::where('service_provider_id', Auth::id())
             ->whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'completed'])
             ->with(['client', 'serviceCategory'])
+            ->orderBy('date', 'desc')
             ->paginate(8);
 
         // Pass the retrieved data to the 'home' view

@@ -1,120 +1,101 @@
 @extends('layouts.app')
 
+@section('title', 'Service Provider Dashboard')
+
 @section('content')
 <div class="container-fluid mt-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <h2 class="mb-4">Service Provider Panel</h2>
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="card mb-3">
-                        <div class="card-header">Task Management</div>
-                        <div class="card-body">
-                            <a href="#" class="btn btn-primary btn-sm mb-2 w-100">View Assigned Tasks</a>
-                            <a href="#" class="btn btn-secondary btn-sm w-100">Completed Tasks</a>
-                        </div>
-                    </div>
-                    <div class="card mb-3">
-                        <div class="card-header">Profile</div>
-                        <div class="card-body">
-                            <a href="#" class="btn btn-primary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#profileModal">Update Profile</a>
-                        </div>
-                    </div>
-                    <!-- <div class="card mb-3">
-                        <div class="card-header">Earnings</div>
-                        <div class="card-body">
-                            <a href="#" class="btn btn-primary btn-sm w-100">View Earnings</a>
-                        </div>
-                    </div> -->
-                    <div class="card mb-3">
-                        <div class="card-header">Settings</div>
-                        <div class="card-body">
-                            <a href="#" class="btn btn-primary btn-sm w-100">Account Settings</a>
-                        </div>
-                    </div>
+    <h1 class="mb-4">Service Provider Dashboard</h1>
+    <div class="row">
+        <!-- Left Column - Control Panels -->
+        <div class="col-md-3 mb-4">
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Quick Actions</h5>
                 </div>
+                <div class="card-body">
+                    <a href="#" class="btn btn-success btn-block mb-2">
+                        <i class="fas fa-tasks"></i> View Assigned Tasks
+                    </a>
+                    <a href="{{ route('provider.profileView') }}" class="btn btn-info btn-block mb-2">
+                        <i class="fas fa-user-cog"></i> View Profile
+                    </a>
+                    <a href="#" class="btn btn-warning btn-block">
+                        <i class="fas fa-cog"></i> Account Settings
+                    </a>
+                </div>
+            </div>
 
-                <div class="col-md-9">
-                    <div class="card mb-3">
-                        <div class="card-header">
-                            Tasks
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-striped table-hover">
-                                    <thead class="thead-dark">
-                                        <tr>
-                                            <th scope="col">ID</th>
-                                            <th scope="col">Client Name</th>
-                                            <th scope="col">Service Category</th>
-                                            <th scope="col">Description</th>
-                                            <th scope="col">Location</th>
-                                            <th scope="col">Date</th>
-                                            <th scope="col">Time</th>
-                                            <th scope="col">Status</th>
-                                            <th scope="col">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($assignedTasks as $task)
-                                        <tr>
-                                            <th scope="row">{{ $task->id }}</th>
-                                            <td>{{ $task->client->first_name }} {{ $task->client->last_name }}</td>
-                                            <td>{{ $task->serviceCategory->name }}</td>
-                                            <td>{{ $task->description }}</td>
-                                            <td>{{ $task->location }}</td>
-                                            <td>{{ $task->date }}</td>
-                                            <td>{{ $task->time }}</td>
-                                            <td>{{ ucfirst($task->status) }}</td>
-                                            <td>
-                                                @if($task->status === 'assigned')
-                                                <a href="{{ route('provider.serviceRequest.view', ['task_id' => $task->id, 'client_id' => $task->client_id]) }}" class="btn btn-sm btn-primary">Manage</a>
-                                                @elseif($task->status === 'quoted')
-                                                <a href="{{ route('provider.serviceRequest.view', ['task_id' => $task->id, 'client_id' => $task->client_id]) }}" class="btn btn-sm btn-info">View</a>
-                                                @elseif($task->status === 're-quoted')
-                                                <a href="{{ route('provider.serviceRequest.view', ['task_id' => $task->id, 'client_id' => $task->client_id]) }}" class="btn btn-sm btn-info">View</a>
-                                                @elseif($task->status === 'confirmed')
-                                                <a href="{{ route('provider.serviceRequest.view', ['task_id' => $task->id, 'client_id' => $task->client_id]) }}" class="btn btn-sm btn-info">View</a>
-                                                @elseif($task->status === 'new-quote-requested')
-                                                <a href="{{ route('provider.serviceRequest.view', ['task_id' => $task->id, 'client_id' => $task->client_id]) }}" class="btn btn-sm btn-secondary">Requote</a>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                            <!-- Pagination Links -->
-                            <div class="d-flex justify-content-center">
-                                {{ $assignedTasks->links('vendor.pagination.bootstrap-4') }}
+            <div class="card mb-3">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="card-title mb-0">Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Total Assigned Tasks:</strong> <span id="totalAssignedTasks">{{ $assignedTasks->count() }}</span></p>
+                    <p><strong>Upcoming Tasks:</strong> <span id="completedTasks">{{ $assignedTasks->where('status', 'confirmed')->count() }}</span></p>
+                    <p><strong>Completed Tasks:</strong> <span id="completedTasks">{{ $assignedTasks->where('status', 'completed')->count() }}</span></p>
+                    <p><strong>This Month's Earnings:</strong> $<span id="monthlyEarnings">Loading...</span></p>
+                </div>
+            </div>
 
-                            </div>
-                        </div>
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="card-title mb-0">Need Help?</h5>
+                </div>
+                <div class="card-body">
+                    <p>Contact our support team:</p>
+                    <p><i class="fas fa-phone"></i> +94 (011) 456-7890</p>
+                    <p><i class="fas fa-envelope"></i> support@timetrove.com</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Assigned Tasks Table -->
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="card-title mb-0">Your Assigned Tasks</h5>
+                </div>
+                <div class="card-body">
+                    @if (session('status'))
+                    <div class="alert alert-success" role="alert">
+                        {{ session('status') }}
                     </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">Statistics</div>
-                                <div class="card-body">
-                                    <ul class="list-group list-group-flush">
-                                        <li class="list-group-item">Total Assigned Tasks: <span id="totalAssignedTasks">Loading...</span></li>
-                                        <li class="list-group-item">Completed Tasks: <span id="completedTasks">Loading...</span></li>
-                                        <li class="list-group-item">This Month's Earnings: $<span id="monthlyEarnings">Loading...</span></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">Recent Activity</div>
-                                <div class="card-body">
-                                    <ul class="list-group list-group-flush" id="recentActivity">
-                                        <li class="list-group-item">Loading recent activity...</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+                    @endif
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Client Name</th>
+                                    <th>Service Category</th>
+                                    <th>Description</th>
+                                    <th>Location</th>
+                                    <th>Date & Time</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($assignedTasks as $task)
+                                <tr>
+                                    <td>{{ $task->id }}</td>
+                                    <td>{{ $task->client->first_name }} {{ $task->client->last_name }}</td>
+                                    <td>{{ $task->serviceCategory->name }}</td>
+                                    <td>{{ Str::limit($task->description, 30) }}</td>
+                                    <td>{{ $task->location }}</td>
+                                    <td>{{ $task->date }} at {{ $task->time }}</td>
+                                    <td><span class="badge bg-{{ $task->status == 'assigned' ? 'warning' : 'success' }}">{{ ucfirst($task->status) }}</span></td>
+                                    <td>
+                                        <a href="{{ route('provider.serviceRequest.view', ['task_id' => $task->id, 'client_id' => $task->client_id]) }}" class="btn btn-primary btn-sm">Manage</a>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pagination Links -->
+                    <div class="d-flex justify-content-center">
+                        {{ $assignedTasks->links('vendor.pagination.bootstrap-4') }}
                     </div>
                 </div>
             </div>
@@ -122,101 +103,5 @@
     </div>
 </div>
 
-<!-- Quote Modal -->
-<div class="modal fade" id="quoteModal" tabindex="-1" aria-labelledby="quoteModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="quoteModalLabel">Create Quote</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="quoteForm">
-                    <input type="hidden" id="taskId" name="task_id">
-                    <div class="mb-3">
-                        <label for="quoteAmount" class="form-label">Quote Amount ($)</label>
-                        <input type="number" class="form-control" id="quoteAmount" name="amount" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="quoteDescription" class="form-label">Description</label>
-                        <textarea class="form-control" id="quoteDescription" name="description" rows="3" required></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveQuote">Save and Send Quote</button>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Profile Modal -->
-<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="profileModalLabel">Update Profile</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="profileForm">
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="name" name="name" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="phone" class="form-label">Phone</label>
-                        <input type="tel" class="form-control" id="phone" name="phone" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="skills" class="form-label">Skills</label>
-                        <textarea class="form-control" id="skills" name="skills" rows="3"></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="saveProfile">Save Changes</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-@endsection
-
-@section('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Populate statistics
-        document.getElementById('totalAssignedTasks').textContent = '10';
-        document.getElementById('completedTasks').textContent = '5';
-        document.getElementById('monthlyEarnings').textContent = '1500';
-
-        // Handle quote creation
-        document.getElementById('saveQuote').addEventListener('click', function() {
-            // Add logic to save quote as PDF and send to scheduler
-            alert('Quote saved and sent to scheduler!');
-            $('#quoteModal').modal('hide');
-        });
-
-        // Handle profile update
-        document.getElementById('saveProfile').addEventListener('click', function() {
-            // Add logic to update profile
-            alert('Profile updated successfully!');
-            $('#profileModal').modal('hide');
-        });
-
-        // Set task ID when opening quote modal
-        $('#quoteModal').on('show.bs.modal', function(event) {
-            var button = $(event.relatedTarget);
-            var taskId = button.data('task-id');
-            $('#taskId').val(taskId);
-        });
-    });
-</script>
 @endsection

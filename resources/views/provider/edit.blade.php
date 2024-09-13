@@ -19,7 +19,7 @@
                     </div>
                     @endif
 
-                    <form method="POST" action="{{ route('scheduler.serviceProvider.update', $serviceProvider->id) }}">
+                    <form method="POST" action="{{ route('provider.updateProfile') }}">
                         @csrf
                         @method('PUT')
 
@@ -64,22 +64,12 @@
                                     <input class="form-check-input" type="radio" name="gender" id="female" value="female" {{ (old('gender', $serviceProvider->gender) == 'female') ? 'checked' : '' }} required>
                                     <label class="form-check-label" for="female">Female</label>
                                 </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="gender" id="other" value="other" {{ (old('gender', $serviceProvider->gender) == 'other') ? 'checked' : '' }} required>
-                                    <label class="form-check-label" for="other">Other</label>
-                                </div>
                             </div>
                         </div>
 
-                        <div class="mb-3 form-check">
-                            <input type="hidden" name="is_active" value="0">
-                            <input type="checkbox" class="form-check-input" id="is_active" name="is_active" value="1" {{ old('is_active', $serviceProvider->is_active) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="is_active">Active</label>
-                        </div>
-
                         <div class="d-flex justify-content-between">
-                            <button type="submit" class="btn btn-primary">Update Service Provider</button>
-                            <a href="{{ route('scheduler.serviceProvider.view', $serviceProvider->id) }}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">Update Profile</button>
+                            <a href="{{ route('provider.profileView') }}" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>
                 </div>

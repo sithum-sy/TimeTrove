@@ -16,7 +16,7 @@
                     <a href="{{ route('scheduler.serviceProviderForm1') }}" class="btn btn-success btn-block mb-2">
                         <i class="fas fa-user-plus"></i> Create Service Provider
                     </a>
-                    <a href="#" class="btn btn-info btn-block mb-2">
+                    <a href="{{ route('home') }}" class="btn btn-info btn-block mb-2">
                         <i class="fas fa-calendar-alt"></i> Manage Appointments
                     </a>
                     <a href="#" class="btn btn-warning btn-block">
