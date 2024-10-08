@@ -52,6 +52,8 @@
                         </tbody>
                     </table>
                 </div>
+                <p class="mt-4">Your security code for this service request is: <strong>{{ $securityCode }}</strong>.</p>
+
                 <p class="mt-4">Thank you for choosing our services!</p>
                 <p>Best regards,<br>TimeTrove Team</p>
             </div>

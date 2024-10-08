@@ -30,9 +30,10 @@
                     <h5 class="card-title mb-0">Statistics</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Total Appointments:</strong> <span id="totalAppointments">Loading...</span></p>
-                    <p><strong>Upcoming Appointments:</strong> <span id="upcomingAppointments">Loading...</span></p>
-                    <p><strong>Total Clients:</strong> <span id="totalClients">Loading...</span></p>
+                    <p><strong>Total Appointments:</strong> <span id="totalAppointments">{{ $clientServiceRequests->count() }}</span></p>
+                    <p><strong>Upcoming Appointments:</strong> <span id="upcomingAppointments">{{ $clientServiceRequests->whereIn('status', ['pending', 'confirmed'])->count() }}</span></p>
+                    <p><strong>Completed Appointments:</strong> <span id="upcomingAppointments">{{ $completedAppointments->where('status', 'completed')->count() }}</span></p>
+                    <p><strong>Total Clients:</strong> <span id="totalClients">{{ $totalClients }}</span></p>
                 </div>
             </div>
 
@@ -70,7 +71,8 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($clientServiceRequests as $request)
+                                @foreach($upcomingAppointments as $request)
+                                @if($request->status === 'pending' || $request->status === 'confirmed')
                                 <tr>
                                     <td>{{ $request->id }}</td>
                                     <td>{{ $request->client->first_name }} {{ $request->client->last_name }}</td>
@@ -83,17 +85,18 @@
                                         <a href="{{ route('scheduler.singleRequest.view', ['request_id' => $request->id, 'client_id' => $request->client_id]) }}" class="btn btn-primary btn-sm">Assign</a>
                                     </td>
                                 </tr>
+                                @endif
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
                     <div class="d-flex justify-content-center">
-                        {{ $clientServiceRequests->links('vendor.pagination.bootstrap-4') }}
+                        {{ $upcomingAppointments->links('vendor.pagination.bootstrap-4') }}
                     </div>
                 </div>
             </div>
 
-            <div class="card">
+            <div class="card mb-4">
                 <div class="card-header bg-dark text-white">
                     <h5 class="card-title mb-0">Quotations by Service Providers</h5>
                 </div>
@@ -113,7 +116,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($clientServiceRequests as $request)
+                                @foreach($quotations as $request)
                                 @if($request->status === 'quoted' || $request->status === 're-quoted' || $request->status === 'pending-approval')
                                 <tr>
                                     <td>{{ $request->id }}</td>
@@ -133,7 +136,52 @@
                         </table>
                     </div>
                     <div class="d-flex justify-content-center">
-                        {{ $clientServiceRequests->links('vendor.pagination.bootstrap-4') }}
+                        {{ $quotations->links('vendor.pagination.bootstrap-4') }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="card-title mb-0">Completed Appointments</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Client Name</th>
+                                    <th>Service</th>
+                                    <th>Description</th>
+                                    <th>Location</th>
+                                    <th>Date & Time</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($completedAppointments as $request)
+                                @if($request->status === 'completed')
+                                <tr>
+                                    <td>{{ $request->id }}</td>
+                                    <td>{{ $request->client->first_name }} {{ $request->client->last_name }}</td>
+                                    <td>{{ $request->serviceCategory->name }}</td>
+                                    <td>{{ Str::limit($request->description, 30) }}</td>
+                                    <td>{{ $request->location }}</td>
+                                    <td>{{ $request->date }} at {{ $request->time }}</td>
+                                    <td><span class="badge bg-{{ $request->status == 'completed' ? 'success' : 'success' }}">{{ ucfirst($request->status) }}</span></td>
+                                    <td>
+                                        <a href="{{ route('scheduler.singleRequest.view', ['request_id' => $request->id, 'client_id' => $request->client_id]) }}" class="btn btn-primary btn-sm">View</a>
+                                    </td>
+                                </tr>
+                                @endif
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex justify-content-center">
+                        {{ $completedAppointments->links('vendor.pagination.bootstrap-4') }}
                     </div>
                 </div>
             </div>

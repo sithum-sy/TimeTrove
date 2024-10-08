@@ -32,6 +32,7 @@
                 <div class="card-body">
                     <p><strong>Total Requests:</strong> <span id="totalRequests">{{ $serviceRequests->count() }}</span></p>
                     <p><strong>Pending Requests:</strong> <span id="pendingRequests">{{ $serviceRequests->where('status', 'pending')->count() }}</span></p>
+                    <p><strong>Confirmed Requests:</strong> <span id="comfirmedRequests">{{ $serviceRequests->where('status', 'confirmed')->count() }}</span></p>
                     <p><strong>Completed Requests:</strong> <span id="completedRequests">{{ $serviceRequests->where('status', 'completed')->count() }}</span></p>
                 </div>
             </div>

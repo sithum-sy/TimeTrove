@@ -56,10 +56,28 @@ class HomeController extends Controller
 
         // Retrieve all pending service requests with related client and service category,
         // ordered by date and paginated with 8 requests per page
-        $clientServiceRequests = ServiceRequest::whereIn('status', ['pending', 'quoted', 're-quoted', 'pending-approval'])
+        $clientServiceRequests = ServiceRequest::whereIn('status', ['pending', 'quoted', 're-quoted', 'pending-approval', 'confirmed', 'completed'])
+            ->with(['client', 'serviceCategory'])
+            ->orderBy('date', 'desc');
+
+        $upcomingAppointments = ServiceRequest::whereIn('status', ['pending', 'confirmed'])
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc')
-            ->paginate(8);
+            ->paginate(8, ['*'], 'upcomingAppointmentsPage');
+
+        $quotations = ServiceRequest::whereIn('status', ['quoted', 're-quoted', 'pending-approval'])
+            ->with(['client', 'serviceCategory'])
+            ->orderBy('date', 'desc')
+            ->paginate(8, ['*'], 'quotationsPage');
+
+        $completedAppointments = ServiceRequest::where('status', 'completed')
+            ->with(['client', 'serviceCategory'])
+            ->orderBy('date', 'desc')
+            ->paginate(8, ['*'], 'completedAppointmentsPage');
+
+        //Get count of all unique clied ids
+        $totalClients = $clientServiceRequests->pluck('client_id')->unique()->count();
+
 
         // Retrieve assigned tasks for the logged-in service provider
         $assignedTasks = ServiceRequest::where('service_provider_id', Auth::id())
@@ -76,6 +94,10 @@ class HomeController extends Controller
             'clientServiceRequests' => $clientServiceRequests,
             'assignedTasks' => $assignedTasks,
             'activeSchedulersCount' => $activeSchedulersCount,
+            'totalClients' => $totalClients,
+            'upcomingAppointments' => $upcomingAppointments,
+            'quotations' => $quotations,
+            'completedAppointments' => $completedAppointments,
         ]);
     }
 }

@@ -220,8 +220,11 @@ class ClientController extends Controller
         $serviceRequest->status = 'confirmed';
         $serviceRequest->save();
 
-        Mail::to($serviceRequest->client->email)->send(new ClientConfirmationEmail($serviceRequest));
-        Mail::to($serviceRequest->serviceProvider->email)->send(new ServiceProviderConfirmationEmail($serviceRequest));
+        // Generate a random 6-digit security code
+        $securityCode = rand(100000, 999999);
+
+        Mail::to($serviceRequest->client->email)->send(new ClientConfirmationEmail($serviceRequest, $securityCode));
+        Mail::to($serviceRequest->serviceProvider->email)->send(new ServiceProviderConfirmationEmail($serviceRequest, $securityCode));
 
         return redirect('home')->with('status', 'Appointment for service request confirmed successfully.');
     }

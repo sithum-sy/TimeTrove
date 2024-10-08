@@ -15,13 +15,15 @@ class ClientConfirmationEmail extends Mailable
     use Queueable, SerializesModels;
 
     public $serviceRequest;
+    public $securityCode;
 
     /**
      * Create a new message instance.
      */
-    public function __construct(ServiceRequest $serviceRequest)
+    public function __construct(ServiceRequest $serviceRequest, $securityCode)
     {
         $this->serviceRequest = $serviceRequest;
+        $this->securityCode = $securityCode;
     }
 
     /**
