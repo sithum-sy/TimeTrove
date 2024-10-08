@@ -38,7 +38,6 @@ class HomeController extends Controller
     public function index()
     {
         // Retrieve all users with the role of 'scheduler'
-
         $schedulers = User::where('role', User::USER_ROLE_SCHEDULER)->orderBy('updated_at', 'desc')->paginate(8);
         $activeSchedulersCount = User::where('role', User::USER_ROLE_SCHEDULER)
             ->where('is_active', 1)
@@ -75,7 +74,7 @@ class HomeController extends Controller
             ->orderBy('date', 'desc')
             ->paginate(8, ['*'], 'completedAppointmentsPage');
 
-        //Get count of all unique clied ids
+        //Get count of all unique client ids
         $totalClients = $clientServiceRequests->pluck('client_id')->unique()->count();
 
 
@@ -107,6 +106,13 @@ class HomeController extends Controller
         $clientServiceRequests = ServiceRequest::whereIn('status', ['pending', 'quoted', 're-quoted', 'pending-approval', 'confirmed', 'completed'])
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc');
+
+        $assignedTasks = ServiceRequest::where('service_provider_id', Auth::id())
+            ->whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'completed'])
+            ->with(['client', 'serviceCategory'])
+            ->orderBy('date', 'desc')
+            ->paginate(8)
+            ->withQueryString();
 
         // Base query with relationships
         $baseQuery = ServiceRequest::query()
@@ -148,6 +154,7 @@ class HomeController extends Controller
 
         return view('home', $data, [
             'clientServiceRequests' => $clientServiceRequests,
+            'assignedTasks' => $assignedTasks,
         ]);
     }
 

@@ -31,7 +31,7 @@
                     <h5 class="card-title mb-0">Search & Filter</h5>
                 </div>
                 <div class="card-body">
-                    <form method="GET" action="{{ route('scheduler.search') }}">
+                    <form method="GET" action="{{ route('search') }}">
                         <div class="mb-2">
                             <input type="text" class="form-control" id="search" name="search"
                                 placeholder="Search by client name or service..."

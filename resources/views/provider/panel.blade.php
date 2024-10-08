@@ -25,6 +25,54 @@
                 </div>
             </div>
 
+            <!-- search and filter -->
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Search & Filter</h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="{{ route('search') }}">
+                        <div class="mb-2">
+                            <input type="text" class="form-control" id="search" name="search"
+                                placeholder="Search by client name or service..."
+                                value="{{ request('search') }}">
+                        </div>
+                        <div class="mb-2">
+                            <select class="form-select" id="status" name="status">
+                                <option value="">All Statuses</option>
+                                @foreach(['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'completed'] as $status)
+                                <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>
+                                    {{ ucfirst($status) }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <select class="form-select" id="service_category" name="service_category">
+                                <option value="">All Services</option>
+                                @foreach($serviceCategories as $category)
+                                <option value="{{ $category->id }}" {{ request('service_category') == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <input type="date" class="form-control" id="date" name="date"
+                                value="{{ request('date') }}">
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                            </div>
+                            <div class="col">
+                                <a href="{{ route('home') }}" class="btn btn-secondary w-100">Clear Filters</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <div class="card mb-3">
                 <div class="card-header bg-secondary text-white">
                     <h5 class="card-title mb-0">Statistics</h5>
@@ -89,6 +137,7 @@
                                         <a href="{{ route('provider.serviceRequest.view', ['task_id' => $task->id, 'client_id' => $task->client_id]) }}" class="btn btn-primary btn-sm">Manage</a>
                                     </td>
                                 </tr>
+
                                 @endforeach
                             </tbody>
                         </table>
