@@ -19,6 +19,7 @@ Route::get('/', function () {
 FacadesAuth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/home/search', [App\Http\Controllers\HomeController::class, 'search'])->name('scheduler.search');
 
 Route::group(['middleware' => ['auth', 'verified']], function () {
     Route::middleware([CheckAdminUserRole::class])->group(function () {

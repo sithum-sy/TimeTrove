@@ -25,13 +25,61 @@
                 </div>
             </div>
 
+            <!-- search and filter -->
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Search & Filter</h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="{{ route('scheduler.search') }}">
+                        <div class="mb-2">
+                            <input type="text" class="form-control" id="search" name="search"
+                                placeholder="Search by client name or service..."
+                                value="{{ request('search') }}">
+                        </div>
+                        <div class="mb-2">
+                            <select class="form-select" id="status" name="status">
+                                <option value="">All Statuses</option>
+                                @foreach(['pending', 'confirmed', 'completed', 'quoted', 're-quoted', 'pending-approval'] as $status)
+                                <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>
+                                    {{ ucfirst($status) }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <select class="form-select" id="service_category" name="service_category">
+                                <option value="">All Services</option>
+                                @foreach($serviceCategories as $category)
+                                <option value="{{ $category->id }}" {{ request('service_category') == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <input type="date" class="form-control" id="date" name="date"
+                                value="{{ request('date') }}">
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+                            </div>
+                            <div class="col">
+                                <a href="{{ route('home') }}" class="btn btn-secondary w-100">Clear Filters</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <div class="card mb-3">
                 <div class="card-header bg-secondary text-white">
                     <h5 class="card-title mb-0">Statistics</h5>
                 </div>
                 <div class="card-body">
                     <p><strong>Total Appointments:</strong> <span id="totalAppointments">{{ $clientServiceRequests->count() }}</span></p>
-                    <p><strong>Upcoming Appointments:</strong> <span id="upcomingAppointments">{{ $clientServiceRequests->whereIn('status', ['pending', 'confirmed'])->count() }}</span></p>
+                    <p><strong>Ongoing Appointments:</strong> <span id="upcomingAppointments">{{ $upcomingAppointments->whereIn('status', ['pending', 'confirmed'])->count() }}</span></p>
                     <p><strong>Completed Appointments:</strong> <span id="upcomingAppointments">{{ $completedAppointments->where('status', 'completed')->count() }}</span></p>
                     <p><strong>Total Clients:</strong> <span id="totalClients">{{ $totalClients }}</span></p>
                 </div>
@@ -51,9 +99,10 @@
 
         <!-- Right Column - Appointments and Quotations Tables -->
         <div class="col-md-9">
+            @foreach(['Ongoing Appointments', 'Quotations by Service Providers', 'Completed Appointments'] as $section)
             <div class="card mb-4">
                 <div class="card-header bg-dark text-white">
-                    <h5 class="card-title mb-0">Upcoming Appointments</h5>
+                    <h5 class="card-title mb-0">{{ $section }}</h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -71,8 +120,12 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($upcomingAppointments as $request)
-                                @if($request->status === 'pending' || $request->status === 'confirmed')
+                                @php
+                                $data = $section == 'Ongoing Appointments' ? $upcomingAppointments :
+                                ($section == 'Quotations by Service Providers' ? $quotations :
+                                $completedAppointments);
+                                @endphp
+                                @forelse($data as $request)
                                 <tr>
                                     <td>{{ $request->id }}</td>
                                     <td>{{ $request->client->first_name }} {{ $request->client->last_name }}</td>
@@ -85,106 +138,22 @@
                                         <a href="{{ route('scheduler.singleRequest.view', ['request_id' => $request->id, 'client_id' => $request->client_id]) }}" class="btn btn-primary btn-sm">Assign</a>
                                     </td>
                                 </tr>
-                                @endif
-                                @endforeach
+                                @empty
+                                <tr>
+                                    <td colspan="8" class="text-center">No records found</td>
+                                </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
                     <div class="d-flex justify-content-center">
-                        {{ $upcomingAppointments->links('vendor.pagination.bootstrap-4') }}
+                        {{ $data->appends(request()->query())->links('vendor.pagination.bootstrap-4') }}
                     </div>
                 </div>
             </div>
+            @endforeach
 
-            <div class="card mb-4">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="card-title mb-0">Quotations by Service Providers</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Client Name</th>
-                                    <th>Service</th>
-                                    <th>Description</th>
-                                    <th>Location</th>
-                                    <th>Date & Time</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($quotations as $request)
-                                @if($request->status === 'quoted' || $request->status === 're-quoted' || $request->status === 'pending-approval')
-                                <tr>
-                                    <td>{{ $request->id }}</td>
-                                    <td>{{ $request->client->first_name }} {{ $request->client->last_name }}</td>
-                                    <td>{{ $request->serviceCategory->name }}</td>
-                                    <td>{{ Str::limit($request->description, 30) }}</td>
-                                    <td>{{ $request->location }}</td>
-                                    <td>{{ $request->date }} at {{ $request->time }}</td>
-                                    <td><span class="badge bg-{{ $request->status == 'pending-approval' ? 'info' : 'warning' }}">{{ ucfirst($request->status) }}</span></td>
-                                    <td>
-                                        <a href="{{ route('scheduler.singleRequest.view', ['request_id' => $request->id, 'client_id' => $request->client_id]) }}" class="btn btn-primary btn-sm">View</a>
-                                    </td>
-                                </tr>
-                                @endif
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        {{ $quotations->links('vendor.pagination.bootstrap-4') }}
-                    </div>
-                </div>
-            </div>
 
-            <div class="card">
-                <div class="card-header bg-dark text-white">
-                    <h5 class="card-title mb-0">Completed Appointments</h5>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-striped table-hover">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Client Name</th>
-                                    <th>Service</th>
-                                    <th>Description</th>
-                                    <th>Location</th>
-                                    <th>Date & Time</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($completedAppointments as $request)
-                                @if($request->status === 'completed')
-                                <tr>
-                                    <td>{{ $request->id }}</td>
-                                    <td>{{ $request->client->first_name }} {{ $request->client->last_name }}</td>
-                                    <td>{{ $request->serviceCategory->name }}</td>
-                                    <td>{{ Str::limit($request->description, 30) }}</td>
-                                    <td>{{ $request->location }}</td>
-                                    <td>{{ $request->date }} at {{ $request->time }}</td>
-                                    <td><span class="badge bg-{{ $request->status == 'completed' ? 'success' : 'success' }}">{{ ucfirst($request->status) }}</span></td>
-                                    <td>
-                                        <a href="{{ route('scheduler.singleRequest.view', ['request_id' => $request->id, 'client_id' => $request->client_id]) }}" class="btn btn-primary btn-sm">View</a>
-                                    </td>
-                                </tr>
-                                @endif
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="d-flex justify-content-center">
-                        {{ $completedAppointments->links('vendor.pagination.bootstrap-4') }}
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </div>
@@ -241,23 +210,4 @@
     </div>
 </div>
 
-@endsection
-
-@section('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Populate statistics
-        document.getElementById('totalAppointments').textContent = '{{ $clientServiceRequests->count() }}';
-        document.getElementById('upcomingAppointments').textContent = '{{ $clientServiceRequests->where("status", "pending")->count() }}';
-        document.getElementById('totalClients').textContent = '{{ App\Models\User::count() }}';
-
-        // Handle appointment scheduling form submission
-        document.getElementById('scheduleAppointmentForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            // Add logic to handle form submission
-            alert('Appointment scheduled successfully!');
-            $('#scheduleAppointmentModal').modal('hide');
-        });
-    });
-</script>
 @endsection

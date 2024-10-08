@@ -100,4 +100,90 @@ class HomeController extends Controller
             'completedAppointments' => $completedAppointments,
         ]);
     }
+
+    public function search(Request $request)
+    {
+
+        $clientServiceRequests = ServiceRequest::whereIn('status', ['pending', 'quoted', 're-quoted', 'pending-approval', 'confirmed', 'completed'])
+            ->with(['client', 'serviceCategory'])
+            ->orderBy('date', 'desc');
+
+        // Base query with relationships
+        $baseQuery = ServiceRequest::query()
+            ->with(['client', 'serviceCategory']);
+
+        // Apply filters
+        $filteredQuery = $this->applyFilters($baseQuery, $request);
+
+        // Get data for different sections
+        $upcomingAppointments = clone $filteredQuery;
+        $quotations = clone $filteredQuery;
+        $completedAppointments = clone $filteredQuery;
+
+        // Get total unique clients based on filtered results
+        $totalClients = $filteredQuery->pluck('client_id')->unique()->count();
+
+        $data = [
+            'upcomingAppointments' => $upcomingAppointments
+                ->whereIn('status', ['pending', 'confirmed'])
+                ->latest()
+                ->paginate(10)
+                ->withQueryString(),
+
+            'quotations' => $quotations
+                ->whereIn('status', ['quoted', 're-quoted', 'pending-approval'])
+                ->latest()
+                ->paginate(10)
+                ->withQueryString(),
+
+            'completedAppointments' => $completedAppointments
+                ->where('status', 'completed')
+                ->latest()
+                ->paginate(10)
+                ->withQueryString(),
+
+            'serviceCategories' => ServiceCategory::all(),
+            'totalClients' => $totalClients,
+        ];
+
+        return view('home', $data, [
+            'clientServiceRequests' => $clientServiceRequests,
+        ]);
+    }
+
+    private function applyFilters($query, Request $request)
+    {
+        // Search filter
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->whereHas('client', function ($q) use ($searchTerm) {
+                    $q->where('first_name', 'like', "%{$searchTerm}%")
+                        ->orWhere('last_name', 'like', "%{$searchTerm}%");
+                })
+                    ->orWhereHas('serviceCategory', function ($q) use ($searchTerm) {
+                        $q->where('name', 'like', "%{$searchTerm}%");
+                    })
+                    ->orWhere('description', 'like', "%{$searchTerm}%")
+                    ->orWhere('location', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        // Status filter
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Service category filter
+        if ($request->filled('service_category')) {
+            $query->where('service_category_id', $request->service_category);
+        }
+
+        // Date filter
+        if ($request->filled('date')) {
+            $query->whereDate('date', $request->date);
+        }
+
+        return $query;
+    }
 }
