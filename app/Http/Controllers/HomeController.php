@@ -49,7 +49,6 @@ class HomeController extends Controller
             ->orderBy('updated_at', 'desc')
             ->get();
 
-
         // Retrieve all service categories
         $serviceCategories = ServiceCategory::where('is_active', 1)->get();
 
@@ -74,6 +73,11 @@ class HomeController extends Controller
             ->orderBy('date', 'desc')
             ->paginate(8, ['*'], 'completedAppointmentsPage');
 
+        $tasks = ServiceRequest::whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'completed'])
+            ->with(['client', 'serviceCategory'])
+            ->orderBy('date', 'desc')
+            ->paginate(8);
+
         //Get count of all unique client ids
         $totalClients = $clientServiceRequests->pluck('client_id')->unique()->count();
 
@@ -84,6 +88,9 @@ class HomeController extends Controller
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc')
             ->paginate(8);
+
+
+
 
         // Pass the retrieved data to the 'home' view
         return view('home', [
@@ -97,11 +104,13 @@ class HomeController extends Controller
             'upcomingAppointments' => $upcomingAppointments,
             'quotations' => $quotations,
             'completedAppointments' => $completedAppointments,
+            'tasks' => $tasks,
         ]);
     }
 
     public function search(Request $request)
     {
+        $user = Auth::user();
 
         $clientServiceRequests = ServiceRequest::whereIn('status', ['pending', 'quoted', 're-quoted', 'pending-approval', 'confirmed', 'completed'])
             ->with(['client', 'serviceCategory'])
@@ -111,12 +120,17 @@ class HomeController extends Controller
             ->whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'completed'])
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc')
-            ->paginate(8)
-            ->withQueryString();
+            ->paginate(8);
 
         // Base query with relationships
         $baseQuery = ServiceRequest::query()
             ->with(['client', 'serviceCategory']);
+
+        // If it's a service provider, limit to their assigned tasks
+        if ($user->role == 'service_provider') {
+            $baseQuery->where('service_provider_id', $user->id)
+                ->whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'completed']);
+        }
 
         // Apply filters
         $filteredQuery = $this->applyFilters($baseQuery, $request);
@@ -125,6 +139,7 @@ class HomeController extends Controller
         $upcomingAppointments = clone $filteredQuery;
         $quotations = clone $filteredQuery;
         $completedAppointments = clone $filteredQuery;
+        $tasks = clone $filteredQuery;
 
         // Get total unique clients based on filtered results
         $totalClients = $filteredQuery->pluck('client_id')->unique()->count();
@@ -148,9 +163,16 @@ class HomeController extends Controller
                 ->paginate(10)
                 ->withQueryString(),
 
+            'tasks' => $tasks
+                ->latest()
+                ->paginate(8)
+                ->withQueryString(),
+
             'serviceCategories' => ServiceCategory::all(),
             'totalClients' => $totalClients,
         ];
+
+
 
         return view('home', $data, [
             'clientServiceRequests' => $clientServiceRequests,

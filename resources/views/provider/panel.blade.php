@@ -124,7 +124,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($assignedTasks as $task)
+                                @forelse($tasks as $task)
                                 <tr>
                                     <td>{{ $task->id }}</td>
                                     <td>{{ $task->client->first_name }} {{ $task->client->last_name }}</td>
@@ -137,14 +137,17 @@
                                         <a href="{{ route('provider.serviceRequest.view', ['task_id' => $task->id, 'client_id' => $task->client_id]) }}" class="btn btn-primary btn-sm">Manage</a>
                                     </td>
                                 </tr>
-
-                                @endforeach
+                                @empty
+                                <tr>
+                                    <td colspan="8" class="text-center">No records found</td>
+                                </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
                     <!-- Pagination Links -->
                     <div class="d-flex justify-content-center">
-                        {{ $assignedTasks->links('vendor.pagination.bootstrap-4') }}
+                        {{ $tasks->appends(request()->query())->links('vendor.pagination.bootstrap-4') }}
                     </div>
                 </div>
             </div>
