@@ -127,3 +127,9 @@ Comments are added to understand the code easily. You guys should do that too.
 
 
 send email reminders - php artisan email:send-service-request-reminders
+
+todo 
+1. How to create a service category
+2. Mapping
+3. Profile pic
+4. services offered by provider profile

@@ -40,7 +40,7 @@
                         <div class="mb-2">
                             <select class="form-select" id="status" name="status">
                                 <option value="">All Statuses</option>
-                                @foreach(['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'completed'] as $status)
+                                @foreach($statuses as $status)
                                 <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>
                                     {{ ucfirst($status) }}
                                 </option>
@@ -125,7 +125,8 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach($serviceRequests as $request)
+                                <!-- To iterate over a collection or array, but also want to provide a fallback or default message when the collection is empty -->
+                                @forelse($serviceRequests as $request)
                                 <tr>
                                     <td>{{ $request->id }}</td>
                                     <td>{{ $request->serviceCategory->name }}</td>
@@ -148,12 +149,19 @@
                                             <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this request?')"><i class="fas fa-trash"></i></button>
                                         </form> -->
                                         <a href="{{ route('client.singleRequest.view', $request->id) }}" class="btn btn-primary btn-sm">Manage</a>
-
                                     </td>
                                 </tr>
-                                @endforeach
+                                @empty
+                                <tr>
+                                    <td colspan="8" class="text-center">No records found</td>
+                                </tr>
+                                @endforelse
                             </tbody>
                         </table>
+                    </div>
+                    <!-- Pagination Links -->
+                    <div class="d-flex justify-content-center">
+                        {{ $serviceRequests->appends(request()->query())->links('vendor.pagination.bootstrap-4') }}
                     </div>
                 </div>
             </div>

@@ -134,17 +134,79 @@ class SchedulerController extends Controller
     //Display the list of service providers
     public function serviceProviderIndex()
     {
-        $serviceProviders = User::where('role', User::USER_ROLE_SERVICE_PROVIDER)->get();
+        // Retrieve service provider services with associated user and service category
+        $serviceProviders = ServiceProviderServices::with(['user', 'serviceCategory'])
+            ->whereHas('user', function ($query) {
+                $query->where('role', User::USER_ROLE_SERVICE_PROVIDER);
+            })
+            ->paginate(10);
 
-        $activeServiceProvidersCount = User::where('role', User::USER_ROLE_SERVICE_PROVIDER)
-            ->where('is_active', 1)
-            ->count();
+        // Get active service categories
+        $serviceCategories = ServiceCategory::where('is_active', 1)->get();
+
+        // Count active service providers
+        $activeServiceProvidersCount = ServiceProviderServices::whereHas('user', function ($query) {
+            $query->where('is_active', 1)
+                ->where('role', User::USER_ROLE_SERVICE_PROVIDER);
+        })->count();
 
         return view('scheduler/service_provider/index', [
             'serviceProviders' => $serviceProviders,
             'activeServiceProvidersCount' => $activeServiceProvidersCount,
+            'serviceCategories' => $serviceCategories,
         ]);
     }
+
+    public function serviceProviderSearch(Request $request)
+    {
+        $query = ServiceProviderServices::with(['user', 'serviceCategory'])
+            ->whereHas('user', function ($query) {
+                $query->where('role', User::USER_ROLE_SERVICE_PROVIDER);
+            });
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($query) use ($search) {
+                $query->whereHas('user', function ($query) use ($search) {
+                    $query->where('first_name', 'like', "%$search%")
+                        ->orWhere('last_name', 'like', "%$search%")
+                        ->orWhere('email', 'like', "%$search%");
+                });
+            });
+        }
+
+        // Apply service category filter
+        if ($request->filled('service_category')) {
+            $query->where('service_category_id', $request->input('service_category'));
+        }
+
+        // Apply status filter
+        if ($request->filled('status')) {
+            $status = $request->input('status');
+            if ($status === 'active') {
+                $query->whereHas('user', function ($query) {
+                    $query->where('is_active', 1);
+                });
+            } elseif ($status === 'inactive') {
+                $query->whereHas('user', function ($query) {
+                    $query->where('is_active', 0);
+                });
+            }
+        }
+
+        $serviceProviders = $query->paginate(10);
+
+        // Count active service providers
+        $activeServiceProvidersCount = $serviceProviders->where('user.is_active', 1)->count();
+
+        return view('scheduler.service_provider.index', [
+            'serviceProviders' => $serviceProviders,
+            'activeServiceProvidersCount' => $activeServiceProvidersCount,
+            'serviceCategories' => ServiceCategory::where('is_active', 1)->get(),
+        ]);
+    }
+
 
 
     //View a single service request which is to be assigned to relevant service provider

@@ -32,6 +32,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     });
     Route::middleware([CheckSchedulerUserRole::class])->group(function () {
         Route::get('/scheduler/service-provider', [SchedulerController::class, 'serviceProviderIndex'])->name('scheduler.serviceProvider');
+        Route::get('/scheduler/service-provider/search', [SchedulerController::class, 'serviceProviderSearch'])->name('scheduler.serviceProvider.search');
         Route::get('/scheduler/service-provider/form1', [SchedulerController::class, 'serviceProviderForm1'])->name('scheduler.serviceProviderForm1');
         Route::post('/scheduler/service-provider/form2', [SchedulerController::class, 'serviceProviderForm2'])->name('scheduler.serviceProviderForm2');
         Route::post('/scheduler/service-provider/store', [SchedulerController::class, 'serviceProviderStore'])->name('scheduler.serviceProvider.store');

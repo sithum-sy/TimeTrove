@@ -47,7 +47,9 @@ class HomeController extends Controller
         $serviceRequests = ServiceRequest::where('client_id', Auth::id())
             ->with('serviceCategory')
             ->orderBy('updated_at', 'desc')
-            ->get();
+            ->paginate(8);
+
+        $statuses = ServiceRequest::distinct()->pluck('status');
 
         // Retrieve all service categories
         $serviceCategories = ServiceCategory::where('is_active', 1)->get();
@@ -105,6 +107,7 @@ class HomeController extends Controller
             'quotations' => $quotations,
             'completedAppointments' => $completedAppointments,
             'tasks' => $tasks,
+            'statuses' => $statuses,
         ]);
     }
 
@@ -140,9 +143,12 @@ class HomeController extends Controller
         $quotations = clone $filteredQuery;
         $completedAppointments = clone $filteredQuery;
         $tasks = clone $filteredQuery;
+        $serviceRequests = clone $filteredQuery;
 
         // Get total unique clients based on filtered results
         $totalClients = $filteredQuery->pluck('client_id')->unique()->count();
+
+        $statuses = ServiceRequest::distinct()->pluck('status');
 
         $data = [
             'upcomingAppointments' => $upcomingAppointments
@@ -168,6 +174,11 @@ class HomeController extends Controller
                 ->paginate(8)
                 ->withQueryString(),
 
+            'serviceRequests' => $serviceRequests
+                ->latest()
+                ->paginate(8)
+                ->withQueryString(),
+
             'serviceCategories' => ServiceCategory::all(),
             'totalClients' => $totalClients,
         ];
@@ -177,6 +188,7 @@ class HomeController extends Controller
         return view('home', $data, [
             'clientServiceRequests' => $clientServiceRequests,
             'assignedTasks' => $assignedTasks,
+            'statuses' => $statuses,
         ]);
     }
 
