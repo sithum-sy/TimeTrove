@@ -55,6 +55,11 @@
                     <h5 class="card-title mb-0">Service Categories</h5>
                 </div>
                 <div class="card-body">
+                    @if (session('status'))
+                    <div class="alert alert-success" role="alert">
+                        {{ session('status') }}
+                    </div>
+                    @endif
                     <div class="table-responsive">
                         <table class="table table-striped table-hover">
                             <thead class="thead-light">
@@ -76,14 +81,13 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="" class="btn btn-primary btn-sm">View</a>
-                                        <a href="" class="btn btn-warning btn-sm">Edit</a>
-                                        <form action="" method="POST" class="d-inline">
+                                        <a href="" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editServiceCategoryModal">Edit</a>
+                                        <form action="{{ route('scheduler.serviceCategories.delete',  $category->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</button>
                                         </form>
-                                        <form action="" method="POST" class="d-inline">
+                                        <form action="{{ route('scheduler.serviceCategories.status', $category->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('PATCH')
                                             <button type="submit" class="btn {{ $category->is_active ? 'btn-secondary' : 'btn-success' }} btn-sm">
@@ -109,52 +113,51 @@
     </div>
 </div>
 
-<!-- Schedule Appointment Modal -->
-<div class="modal fade" id="scheduleAppointmentModal" tabindex="-1" aria-labelledby="scheduleAppointmentModalLabel" aria-hidden="true">
+<!-- Add Service Category Modal -->
+<div class="modal fade" id="scheduleAppointmentModal" tabindex="-1" aria-labelledby="addServiceCategoryModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
-                <h5 class="modal-title" id="scheduleAppointmentModalLabel">Create </h5>
+                <h5 class="modal-title" id="addServiceCategoryModalLabel">Add New Service Category</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="scheduleAppointmentForm" method="POST" action="#">
+            <form id="addServiceCategoryForm" method="POST" action="{{ route('scheduler.serviceCategories.store') }}">
                 @csrf
                 <div class="modal-body">
-                    <!-- Add form fields for scheduling an appointment -->
                     <div class="mb-3">
-                        <label for="client" class="form-label">Client</label>
-                        <select class="form-select" id="client" name="client_id" required>
-                            <option value="" disabled selected>Select a client</option>
-                            <!-- Add options dynamically from your client list -->
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="service_category" class="form-label">Service Category</label>
-                        <select class="form-select" id="service_category" name="service_category_id" required>
-                            <option value="" disabled selected>Select a service</option>
-                            <!-- Add options dynamically from your service categories -->
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="location" class="form-label">Location</label>
-                        <input type="text" class="form-control" id="location" name="location" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="date" class="form-label">Date</label>
-                        <input type="date" class="form-control" id="date" name="date" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="time" class="form-label">Time</label>
-                        <input type="time" class="form-control" id="time" name="time" required>
+                        <label for="name" class="form-label">Category Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-success">Schedule Appointment</button>
+                    <button type="submit" class="btn btn-success">Create Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Service Category Modal -->
+<div class="modal fade" id="editServiceCategoryModal" tabindex="-1" aria-labelledby="editServiceCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="editServiceCategoryModalLabel">Update Service Category</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="updateServiceCategoryForm" method="POST" action="{{ route('scheduler.serviceCategories.update',  $category->id) }}">
+                @csrf
+                @method('PUT')
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Category Name</label>
+                        <input type="text" class="form-control" id="name" name="name" value="{{ old('name', $category->name) }}" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Update Category</button>
                 </div>
             </form>
         </div>

@@ -453,7 +453,55 @@ class SchedulerController extends Controller
         return view('scheduler.serviceCategoriesIndex', [
             'serviceCategories' => $serviceCategories,
             'statistics' => $statistics,
-
         ]);
+    }
+
+    //Add a new service category
+    public function storeServiceCategory(Request $request)
+    {
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $serviceCategory = ServiceCategory::create([
+            'name' => $validatedData['name'],
+            'created_by' => Auth::check() ? Auth::id() : null,
+        ]);
+
+        return redirect()->route('scheduler.serviceCategories')->with('status', 'Service category created successfully');
+    }
+
+    public function toggleServiceCategoryStatus(ServiceCategory $serviceCategory)
+    {
+        $serviceCategory->update([
+            'is_active' => !$serviceCategory->is_active
+        ]);
+
+        return redirect()->back()->with('status', 'Service category status updated successfully');
+    }
+
+    //update the service provider details
+    public function updateServiceCategories(Request $request, ServiceCategory $serviceCategory)
+    {
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+        ]);
+
+        $serviceCategory->update([
+            'name' => $validatedData['name'],
+            'updated_by' => Auth::check() ? Auth::id() : null,
+        ]);
+
+        return redirect()->route('scheduler.serviceCategories')
+            ->with('status', 'Service category updated successfully!');
+    }
+
+
+    //delete a service category
+    public function deleteServiceCategory(ServiceCategory $serviceCategory)
+    {
+        $serviceCategory->delete();
+
+        return redirect()->back()->with('status', 'Service category deleted successfully');
     }
 }

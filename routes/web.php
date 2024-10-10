@@ -48,6 +48,10 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
         Route::get('/service-request/pass-to-client/{request_id}/', [SchedulerController::class, 'passToClient'])->name('scheduler.passToClient');
 
         Route::get('/service-categories', [SchedulerController::class, 'serviceCategoriesIndex'])->name('scheduler.serviceCategories');
+        Route::post('/service-categories/store', [SchedulerController::class, 'storeServiceCategory'])->name('scheduler.serviceCategories.store');
+        Route::patch('/service-categories/status/{serviceCategory}', [SchedulerController::class, 'toggleServiceCategoryStatus'])->name('scheduler.serviceCategories.status');
+        Route::delete('/service-categories/delete/{serviceCategory}', [SchedulerController::class, 'deleteServiceCategory'])->name('scheduler.serviceCategories.delete');
+        Route::put('/service-categories/update/{serviceCategory}', [SchedulerController::class, 'updateServiceCategories'])->name('scheduler.serviceCategories.update');
     });
     Route::middleware([CheckClientUserRole::class])->group(function () {
         Route::post('/home/requests', [ClientController::class, 'addRequest'])->name('client.addRequest');
