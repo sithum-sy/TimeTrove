@@ -46,6 +46,8 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
         Route::get('/service-request/{request_id}/client/{client_id}', [SchedulerController::class, 'viewRequest'])->name('scheduler.singleRequest.view');
         Route::get('/service-request/{request_id}/', [SchedulerController::class, 'requestNewQuote'])->name('scheduler.requestNewQuote');
         Route::get('/service-request/pass-to-client/{request_id}/', [SchedulerController::class, 'passToClient'])->name('scheduler.passToClient');
+
+        Route::get('/service-categories', [SchedulerController::class, 'serviceCategoriesIndex'])->name('scheduler.serviceCategories');
     });
     Route::middleware([CheckClientUserRole::class])->group(function () {
         Route::post('/home/requests', [ClientController::class, 'addRequest'])->name('client.addRequest');

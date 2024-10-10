@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="container-fluid mt-4">
-    <h1 class="mb-4">Scheduler Dashboard</h1>
+    <h1 class="mb-4">Service Category Control Panel</h1>
     <div class="row">
         <!-- Left Column - Control Panels -->
         <div class="col-md-3 mb-4">
@@ -14,62 +14,14 @@
                 </div>
                 <div class="card-body">
                     <button type="button" class="btn btn-success btn-block mb-2" data-bs-toggle="modal" data-bs-target="#scheduleAppointmentModal">
-                        <i class="fas fa-calendar-plus"></i> Schedule Appointment
+                        <i class="fas fa-calendar-plus"></i> New Service Category
                     </button>
                     <a href="{{ route('scheduler.serviceProvider') }}" class="btn btn-info btn-block mb-2">
                         <i class="fas fa-user-tie"></i> Manage Service Providers
                     </a>
-                    <a href="{{ route('scheduler.serviceCategories') }}" class="btn btn-warning btn-block">
-                        <i class="fa-solid fa-layer-group"></i> Manage Service Categories
+                    <a href="{{ route('home') }}" class="btn btn-warning btn-block mb-2">
+                        <i class="fas fa-calendar-alt"></i> Manage Appointments
                     </a>
-                </div>
-            </div>
-
-            <!-- search and filter -->
-            <div class="card mb-3">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="card-title mb-0">Search & Filter</h5>
-                </div>
-                <div class="card-body">
-                    <form method="GET" action="{{ route('search') }}">
-                        <div class="mb-2">
-                            <input type="text" class="form-control" id="search" name="search"
-                                placeholder="Search by client name or service..."
-                                value="{{ request('search') }}">
-                        </div>
-                        <div class="mb-2">
-                            <select class="form-select" id="status" name="status">
-                                <option value="">All Statuses</option>
-                                @foreach(['pending', 'confirmed', 'completed', 'quoted', 're-quoted', 'pending-approval'] as $status)
-                                <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>
-                                    {{ ucfirst($status) }}
-                                </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-2">
-                            <select class="form-select" id="service_category" name="service_category">
-                                <option value="">All Services</option>
-                                @foreach($serviceCategories as $category)
-                                <option value="{{ $category->id }}" {{ request('service_category') == $category->id ? 'selected' : '' }}>
-                                    {{ $category->name }}
-                                </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="mb-2">
-                            <input type="date" class="form-control" id="date" name="date"
-                                value="{{ request('date') }}">
-                        </div>
-                        <div class="row">
-                            <div class="col">
-                                <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
-                            </div>
-                            <div class="col">
-                                <a href="{{ route('home') }}" class="btn btn-secondary w-100">Clear Filters</a>
-                            </div>
-                        </div>
-                    </form>
                 </div>
             </div>
 
@@ -78,10 +30,9 @@
                     <h5 class="card-title mb-0">Statistics</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Total Appointments:</strong> <span id="totalAppointments">{{ $clientServiceRequests->count() }}</span></p>
-                    <p><strong>Ongoing Appointments:</strong> <span id="upcomingAppointments">{{ $upcomingAppointments->whereIn('status', ['pending', 'confirmed'])->count() }}</span></p>
-                    <p><strong>Completed Appointments:</strong> <span id="upcomingAppointments">{{ $completedAppointments->where('status', 'completed')->count() }}</span></p>
-                    <p><strong>Total Clients:</strong> <span id="totalClients">{{ $totalClients }}</span></p>
+                    <p><strong>Total Service Categories:</strong> <span id="totalServiceCategories">{{ $statistics['total'] }}</span></p>
+                    <p><strong>Active Service Categories:</strong> <span id="activeServiceCategories">{{ $statistics['active'] }}</span></p>
+                    <p><strong>Inactive Service Categories:</strong> <span id="inactiveServiceCategories">{{ $statistics['inactive'] }}</span></p>
                 </div>
             </div>
 
@@ -99,10 +50,9 @@
 
         <!-- Right Column - Appointments and Quotations Tables -->
         <div class="col-md-9">
-            @foreach(['Ongoing Appointments', 'Quotations by Service Providers', 'Completed Appointments'] as $section)
             <div class="card mb-4">
                 <div class="card-header bg-dark text-white">
-                    <h5 class="card-title mb-0">{{ $section }}</h5>
+                    <h5 class="card-title mb-0">Service Categories</h5>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -110,50 +60,51 @@
                             <thead class="thead-light">
                                 <tr>
                                     <th>ID</th>
-                                    <th>Client Name</th>
-                                    <th>Service</th>
-                                    <th>Description</th>
-                                    <th>Location</th>
-                                    <th>Date & Time</th>
+                                    <th>Category Name</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @php
-                                $data = $section == 'Ongoing Appointments' ? $upcomingAppointments :
-                                ($section == 'Quotations by Service Providers' ? $quotations :
-                                $completedAppointments);
-                                @endphp
-                                @forelse($data as $request)
+                                @forelse($serviceCategories as $category)
                                 <tr>
-                                    <td>{{ $request->id }}</td>
-                                    <td>{{ $request->client->first_name }} {{ $request->client->last_name }}</td>
-                                    <td>{{ $request->serviceCategory->name }}</td>
-                                    <td>{{ Str::limit($request->description, 30) }}</td>
-                                    <td>{{ $request->location }}</td>
-                                    <td>{{ $request->date }} at {{ $request->time }}</td>
-                                    <td><span class="badge bg-{{ $request->status == 'pending' ? 'warning' : 'success' }}">{{ ucfirst($request->status) }}</span></td>
+                                    <td>{{ $category->id }}</td>
+                                    <td>{{ $category->name }}</td>
                                     <td>
-                                        <a href="{{ route('scheduler.singleRequest.view', ['request_id' => $request->id, 'client_id' => $request->client_id]) }}" class="btn btn-primary btn-sm">Assign</a>
+                                        <span class="badge bg-{{ $category->is_active ? 'success' : 'danger' }}">
+                                            {{ $category->is_active ? 'Active' : 'Inactive' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="" class="btn btn-primary btn-sm">View</a>
+                                        <a href="" class="btn btn-warning btn-sm">Edit</a>
+                                        <form action="" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</button>
+                                        </form>
+                                        <form action="" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit" class="btn {{ $category->is_active ? 'btn-secondary' : 'btn-success' }} btn-sm">
+                                                {{ $category->is_active ? 'Deactivate' : 'Activate' }}
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="8" class="text-center">No records found</td>
+                                    <td colspan="4" class="text-center">No service categories found</td>
                                 </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
                     <div class="d-flex justify-content-center">
-                        {{ $data->appends(request()->query())->links('vendor.pagination.bootstrap-4') }}
+                        {{ $serviceCategories->links() }}
                     </div>
                 </div>
             </div>
-            @endforeach
-
-
         </div>
     </div>
 </div>
@@ -163,7 +114,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
-                <h5 class="modal-title" id="scheduleAppointmentModalLabel">Schedule New Appointment</h5>
+                <h5 class="modal-title" id="scheduleAppointmentModalLabel">Create </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="scheduleAppointmentForm" method="POST" action="#">

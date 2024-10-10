@@ -438,4 +438,22 @@ class SchedulerController extends Controller
             'Service Provider was deleted successfully.'
         );
     }
+
+    //View service categories
+    public function serviceCategoriesIndex()
+    {
+        $serviceCategories = ServiceCategory::paginate(10);
+
+        $statistics = [
+            'total' => ServiceCategory::count(),
+            'active' => ServiceCategory::where('is_active', true)->count(),
+            'inactive' => ServiceCategory::where('is_active', false)->count(),
+        ];
+
+        return view('scheduler.serviceCategoriesIndex', [
+            'serviceCategories' => $serviceCategories,
+            'statistics' => $statistics,
+
+        ]);
+    }
 }

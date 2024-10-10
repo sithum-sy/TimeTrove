@@ -19,8 +19,8 @@
                     <a href="{{ route('home') }}" class="btn btn-info btn-block mb-2">
                         <i class="fas fa-calendar-alt"></i> Manage Appointments
                     </a>
-                    <a href="#" class="btn btn-warning btn-block">
-                        <i class="fas fa-cogs"></i> System Settings
+                    <a href="{{ route('scheduler.serviceCategories') }}" class="btn btn-warning btn-block">
+                        <i class="fa-solid fa-layer-group"></i> Manage Service Categories
                     </a>
                 </div>
             </div>
@@ -162,30 +162,4 @@
     </div>
 </div>
 
-@endsection
-
-@section('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Populate statistics
-        document.getElementById('totalUsers').textContent = '1,234';
-        document.getElementById('totalAppointments').textContent = '5,678';
-        document.getElementById('activeServices').textContent = '42';
-
-        // Populate recent activity
-        const recentActivity = [
-            'New user registered: John Doe',
-            'Appointment scheduled: Jane Smith - Haircut',
-            'New service added: Massage Therapy'
-        ];
-        const activityList = document.getElementById('recentActivity');
-        activityList.innerHTML = '';
-        recentActivity.forEach(activity => {
-            const li = document.createElement('li');
-            li.className = 'list-group-item';
-            li.textContent = activity;
-            activityList.appendChild(li);
-        });
-    });
-</script>
 @endsection
