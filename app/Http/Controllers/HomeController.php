@@ -56,11 +56,11 @@ class HomeController extends Controller
 
         // Retrieve all pending service requests with related client and service category,
         // ordered by date and paginated with 8 requests per page
-        $clientServiceRequests = ServiceRequest::whereIn('status', ['pending', 'quoted', 're-quoted', 'pending-approval', 'confirmed', 'completed'])
+        $clientServiceRequests = ServiceRequest::whereIn('status', ['pending', 'quoted', 're-quoted', 'pending-approval', 'confirmed', 'started', 'pending-payment', 'completed'])
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc');
 
-        $upcomingAppointments = ServiceRequest::whereIn('status', ['pending', 'confirmed'])
+        $upcomingAppointments = ServiceRequest::whereIn('status', ['pending', 'confirmed', 'started'])
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc')
             ->paginate(8, ['*'], 'upcomingAppointmentsPage');
@@ -70,12 +70,12 @@ class HomeController extends Controller
             ->orderBy('date', 'desc')
             ->paginate(8, ['*'], 'quotationsPage');
 
-        $completedAppointments = ServiceRequest::where('status', 'completed')
+        $completedAppointments = ServiceRequest::whereIn('status', ['pending-payment', 'completed'])
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc')
             ->paginate(8, ['*'], 'completedAppointmentsPage');
 
-        $tasks = ServiceRequest::whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'completed'])
+        $tasks = ServiceRequest::whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'started', 'pending-payment',  'completed'])
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc')
             ->paginate(8);
@@ -86,7 +86,7 @@ class HomeController extends Controller
 
         // Retrieve assigned tasks for the logged-in service provider
         $assignedTasks = ServiceRequest::where('service_provider_id', Auth::id())
-            ->whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'completed'])
+            ->whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'pending-payment', 'completed'])
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc')
             ->paginate(8);
@@ -115,12 +115,12 @@ class HomeController extends Controller
     {
         $user = Auth::user();
 
-        $clientServiceRequests = ServiceRequest::whereIn('status', ['pending', 'quoted', 're-quoted', 'pending-approval', 'confirmed', 'completed'])
+        $clientServiceRequests = ServiceRequest::whereIn('status', ['pending', 'quoted', 're-quoted', 'pending-approval', 'confirmed', 'started', 'pending-payment', 'completed'])
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc');
 
         $assignedTasks = ServiceRequest::where('service_provider_id', Auth::id())
-            ->whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'completed'])
+            ->whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'started', 'pending-payment', 'completed'])
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc')
             ->paginate(8);
@@ -132,7 +132,7 @@ class HomeController extends Controller
         // If it's a service provider, limit to their assigned tasks
         if ($user->role == 'service_provider') {
             $baseQuery->where('service_provider_id', $user->id)
-                ->whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'completed']);
+                ->whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'started', 'pending-payment', 'completed']);
         }
 
         // Apply filters
@@ -152,7 +152,7 @@ class HomeController extends Controller
 
         $data = [
             'upcomingAppointments' => $upcomingAppointments
-                ->whereIn('status', ['pending', 'confirmed'])
+                ->whereIn('status', ['pending', 'confirmed', 'started'])
                 ->latest()
                 ->paginate(10)
                 ->withQueryString(),
@@ -164,7 +164,7 @@ class HomeController extends Controller
                 ->withQueryString(),
 
             'completedAppointments' => $completedAppointments
-                ->where('status', 'completed')
+                ->whereIn('status', ['pending-payment', 'completed'])
                 ->latest()
                 ->paginate(10)
                 ->withQueryString(),

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Invoice;
 use App\Models\Quotation;
 use App\Models\ServiceCategory;
 use App\Models\ServiceProviderServices;
 use App\Models\ServiceRequest;
+use App\Models\ServiceRequestSecurity;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -133,6 +135,72 @@ class ServiceProviderController extends Controller
 
         return redirect('home')->with('status', 'Quotation updated successfully.');
     }
+
+    public function startService(Request $request, ServiceRequest $serviceRequest)
+    {
+        $request->validate([
+            'security_code' => 'required|string|size:6',
+        ]);
+
+        $security = ServiceRequestSecurity::where('service_request_id', $serviceRequest->id)
+            ->where('service_provider_id', Auth::id())
+            ->where('security_code', $request->security_code)
+            ->where('is_used', false)
+            ->first();
+
+        if (!$security) {
+            return back()->withErrors(['security_code' => 'Invalid security code']);
+        }
+
+        // Mark the security code as used
+        $security->is_used = true;
+        $security->save();
+
+        // Update the service request status
+        $serviceRequest->status = 'started';
+        $serviceRequest->save();
+
+        return redirect('home')->with('status', 'Service started successfully.');
+    }
+
+    //store the invoice data for a service request
+    public function storeInvoice(Request $request, $serviceRequestId)
+    {
+        // Validate the request
+        $validated = $request->validate([
+            'service_provider_id' => 'required|exists:users,id',
+            'actual_hours' => 'required|numeric',
+            'final_hourly_rate' => 'required|numeric',
+            'final_materials_cost' => 'required|numeric',
+            'final_additional_charges' => 'required|numeric',
+            'invoice_notes' => 'nullable|string',
+        ]);
+
+        $finalTotalAmount = ($validated['actual_hours'] * $validated['final_hourly_rate']) +
+            $validated['final_materials_cost'] +
+            $validated['final_additional_charges'];
+
+        Invoice::create([
+            'service_request_id' => $serviceRequestId,
+            'service_provider_id' => $validated['service_provider_id'],
+            'actual_hours' => $validated['actual_hours'],
+            'final_hourly_rate' => $validated['final_hourly_rate'],
+            'final_materials_cost' => $validated['final_materials_cost'],
+            'final_additional_charges' => $validated['final_additional_charges'],
+            'final_total_amount' => $finalTotalAmount,
+            'invoice_notes' => $validated['invoice_notes'],
+        ]);
+
+        $serviceRequest = ServiceRequest::findOrFail($serviceRequestId);
+
+        $serviceRequest->service_provider_id = $request->input('service_provider_id');
+        $serviceRequest->status = 'pending-payment';
+        $serviceRequest->save();
+
+        return redirect('home')->with('status', 'Invoice submitted successfully.');
+    }
+
+
 
     //view service provier profile data
     public function profileView()

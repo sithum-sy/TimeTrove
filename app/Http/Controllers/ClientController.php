@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ServiceProviderConfirmationEmail;
 use App\Mail\ClientConfirmationEmail;
-
+use App\Models\ServiceRequestSecurity;
 
 class ClientController extends Controller
 {
@@ -217,17 +217,26 @@ class ClientController extends Controller
         if ($serviceProviderId) {
             $serviceRequest->service_provider_id = $serviceProviderId;
         }
+
         $serviceRequest->status = 'confirmed';
         $serviceRequest->save();
 
         // Generate a random 6-digit security code
-        $securityCode = rand(100000, 999999);
+        $securityCode = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        // Save the security code
+        ServiceRequestSecurity::create([
+            'service_request_id' => $serviceRequest->id,
+            'service_provider_id' => $serviceRequest->service_provider_id,
+            'security_code' => $securityCode,
+        ]);
 
         Mail::to($serviceRequest->client->email)->send(new ClientConfirmationEmail($serviceRequest, $securityCode));
         Mail::to($serviceRequest->serviceProvider->email)->send(new ServiceProviderConfirmationEmail($serviceRequest, $securityCode));
 
         return redirect('home')->with('status', 'Appointment for service request confirmed successfully.');
     }
+
 
     public function rejectQuote($requestId)
     {

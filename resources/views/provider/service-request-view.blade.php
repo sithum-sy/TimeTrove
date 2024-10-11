@@ -8,7 +8,10 @@
                 <h2>Service Request Details: {{ $serviceRequest->serviceCategory->name }}</h2>
                 <form action="{{ route('provider.serviceRequest.reject', $serviceRequest->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to reject this request?');">
                     @csrf
-                    <button type=" submit" class="btn btn-danger">Reject Request</button>
+                    @if(!in_array($serviceRequest->status, ['confirmed', 'completed', 'started']))
+                    <button type="submit" class="btn btn-danger">Reject Request</button>
+                    @endif
+
                 </form>
             </div>
             {{-- Success Message --}}
@@ -18,8 +21,43 @@
             </div>
             @endif
 
+            @if(session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+            @endif
+
             <div class="row">
                 <div class="col-md-4">
+                    @if($serviceRequest->status === 'confirmed')
+                    <div class="card mb-3">
+                        <div class="card-header bg-primary text-white">
+                            Start Service
+                        </div>
+                        <div class="card-body">
+                            <form action="{{ route('provider.startService', $serviceRequest) }}" method="POST">
+                                @csrf
+                                <div class="row align-items-end">
+                                    <div class="col-md-8">
+                                        <label for="security_code" class="form-label">Enter Security Code</label>
+                                        <input type="text" class="form-control @error('security_code') is-invalid @enderror"
+                                            id="security_code" name="security_code"
+                                            placeholder="Enter 6-digit security code" maxlength="6" required>
+                                        @error('security_code')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                        @enderror
+                                    </div>
+                                    <div class="col-md-4">
+                                        <button type="submit" class="btn btn-primary w-100">Start Service</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    @endif
+
                     <div class="card mb-3">
                         <div class="card-header">Request Information</div>
                         <div class="card-body">
@@ -30,7 +68,7 @@
                             <p><strong>Location:</strong> {{ $serviceRequest->location}}</p>
                             <p><strong>Date:</strong> {{ $serviceRequest->date }}</p>
                             <p><strong>Time:</strong> {{ $serviceRequest->time }}</p>
-                            <p><strong>Status:</strong> {{ ucfirst($serviceRequest->status) }}</p>
+                            <p><strong>Status:</strong> <label class="badge bg-{{ $serviceRequest->status == 'assigned' ? 'warning' : 'success' }}">{{ ucfirst($serviceRequest->status) }}</label></p>
                         </div>
                     </div>
                     <div class="card mb-3">
@@ -98,7 +136,8 @@
                         </div>
                     </div>
                 </div>
-                @elseif ($serviceRequest->status === 'quoted' || $serviceRequest->status === 'confirmed')
+
+                @elseif (($serviceRequest->status === 'quoted') || ($serviceRequest->status === 'confirmed'))
                 <div class="col-md-8">
                     <div class="card mb-3">
                         <div class="card-header">
@@ -140,6 +179,7 @@
                         </div>
                     </div>
                 </div>
+
                 @elseif ($serviceRequest->status === 'new-quote-requested')
                 <div class="col-md-8">
                     <div class="card mb-3">
@@ -186,6 +226,7 @@
                         </div>
                     </div>
                 </div>
+
                 @elseif ($serviceRequest->status === 're-quoted')
                 <div class="col-md-8">
                     <div class="card mb-3">
@@ -228,6 +269,57 @@
                         </div>
                     </div>
                 </div>
+
+                @elseif ($serviceRequest->status === 'started')
+                <div class="col-md-8">
+                    <div class="card mb-3">
+                        <div class="card-header bg-primary text-white">
+                            Generate Invoice
+                        </div>
+                        <div class="card-body">
+                            <form action="{{ route('provider.storeInvoice', $serviceRequest->id) }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="service_provider_id" value="{{ auth()->user()->id }}">
+
+                                <div class="mb-3">
+                                    <label for="actual_hours" class="form-label">Actual Hours Worked</label>
+                                    <input type="number" step="0.5" class="form-control" id="actual_hours" name="actual_hours"
+                                        value="{{ $quotation->estimated_hours }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="final_hourly_rate" class="form-label">Hourly Rate (Rs)</label>
+                                    <input type="number" class="form-control" id="final_hourly_rate" name="final_hourly_rate"
+                                        value="{{ $quotation->hourly_rate }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="final_materials_cost" class="form-label">Materials Cost (Rs)</label>
+                                    <input type="number" class="form-control" id="final_materials_cost" name="final_materials_cost"
+                                        value="{{ $quotation->materials_cost }}" required>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="final_additional_charges" class="form-label">Additional Charges (Rs)</label>
+                                    <input type="number" class="form-control" id="final_additional_charges" name="final_additional_charges"
+                                        value="{{ $quotation->additional_charges }}" readonly>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="final_total_amount" class="form-label"><strong>Total Amount (Rs)</strong></label>
+                                    <input type="number" class="form-control" id="final_total_amount" name="final_total_amount" value="{{ $quotation->total_charges ?? '' }}" readonly>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="invoice_notes" class="form-label">Invoice Notes</label>
+                                    <textarea class="form-control" id="invoice_notes" name="invoice_notes" rows="3">{{ $quotation->notes }}</textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Send Invoice to Client</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
                 @endif
 
             </div>
@@ -253,6 +345,25 @@
         document.getElementById('materials_cost').addEventListener('input', calculateTotal);
         document.getElementById('additional_charges').addEventListener('input', calculateTotal);
     });
+
+    function calculateFinalTotal() {
+        // Get the values of each input field
+        var actualHours = parseFloat(document.getElementById('actual_hours').value) || 0;
+        var finalHourlyRate = parseFloat(document.getElementById('final_hourly_rate').value) || 0;
+        var finalMaterialsCost = parseFloat(document.getElementById('final_materials_cost').value) || 0;
+        var finalAdditionalCharges = parseFloat(document.getElementById('final_additional_charges').value) || 0;
+
+        // Calculate the total amount
+        var totalAmount = (actualHours * finalHourlyRate) + finalMaterialsCost + finalAdditionalCharges;
+
+        // Set the calculated total to the final_total_amount input field
+        document.getElementById('final_total_amount').value = totalAmount.toFixed(2); // Rounding to 2 decimal places
+    }
+
+    // Attach the function to the oninput event of relevant fields
+    document.getElementById('actual_hours').oninput = calculateFinalTotal;
+    document.getElementById('final_hourly_rate').oninput = calculateFinalTotal;
+    document.getElementById('final_materials_cost').oninput = calculateFinalTotal;
 </script>
 
 @endsection

@@ -25,7 +25,9 @@ return new class extends Migration
                 'confirmed',
                 'completed',
                 'pending-approval',
-                're-quoted'
+                're-quoted',
+                'started',
+                'pending-payment'
             ])->default('pending')->change();
         });
     }

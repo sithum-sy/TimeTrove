@@ -40,7 +40,7 @@
                         <div class="mb-2">
                             <select class="form-select" id="status" name="status">
                                 <option value="">All Statuses</option>
-                                @foreach(['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'completed'] as $status)
+                                @foreach(['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'started', 'completed'] as $status)
                                 <option value="{{ $status }}" {{ request('status') == $status ? 'selected' : '' }}>
                                     {{ ucfirst($status) }}
                                 </option>

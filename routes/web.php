@@ -80,5 +80,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
         Route::get('/provider/service/edit/{id}', [ServiceProviderController::class, 'editService'])->name('provider.editService');
         Route::put('/provider/service/update/{id}', [ServiceProviderController::class, 'updateService'])->name('provider.updateService');
         Route::delete('/provider/service/delete/{id}', [ServiceProviderController::class, 'deleteService'])->name('provider.deleteService');
+        Route::post('/provider/service/start/{serviceRequest}', [ServiceProviderController::class, 'startService'])->name('provider.startService');
+        Route::post('/provider/request/invoice/{serviceRequest}', [ServiceProviderController::class, 'storeInvoice'])->name('provider.storeInvoice');
     });
 });

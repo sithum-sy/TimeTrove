@@ -52,9 +52,9 @@
                         </tbody>
                     </table>
                 </div>
-                <p class="mt-4">Please provide the following security code to the customer before beginning the service:
-                <h5><strong>{{ $securityCode }}</strong></h5>
-                </p>
+                <!-- <p class="mt-4">Please provide the following security code to the customer before beginning the service:
+                <h5><strong></strong></h5>
+                </p> -->
 
                 <p class="mt-4">Thank you</p>
                 <p>Best regards,<br>TimeTrove Team</p>
