@@ -25,7 +25,7 @@
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-danger me-2">
-                            <i class="bi bi-x-circle"></i> Reject Request
+                            <i class="bi bi-x-circle"></i> Cancel Request
                         </button>
                     </form>
                     @endif
@@ -49,10 +49,12 @@
                             <p><strong>Date:</strong> {{ $serviceRequest->date }}</p>
                             <p><strong>Time:</strong> {{ $serviceRequest->time }}</p>
                             <p><strong>Status:</strong> {{ ucfirst($serviceRequest->status) }}</p>
+                            @if($serviceRequest->status !== 'pending')
                             <p><strong>Service Provider:</strong> {{ $serviceRequest->serviceProvider->first_name }} {{ $serviceRequest->serviceProvider->last_name }}
                                 ( <i class="fas fa-star" style="color: gold;"></i> {{ number_format($serviceRequest->serviceProvider->averageRating(), 1) }}/5.0)
                                 ({{ $serviceRequest->serviceProvider->ratingCount() }} {{ Str::plural('review', $serviceRequest->serviceProvider->ratingCount()) }})
                             </p>
+                            @endif
                         </div>
                     </div>
                     <div class="card mb-3">
@@ -65,7 +67,7 @@
                         <div class="card-header">Pictures</div>
                         <div class="card-body">
                             @if($serviceRequest->request_picture)
-                            <img src="{{ asset('uploads/request_pictures/' . $serviceRequest->request_picture) }}" alt="Request Picture" class="img-fluid">
+                            <img src="{{ asset($serviceRequest->request_picture) }}" alt="Request Picture" class="img-fluid">
                             @else
                             <p>No pictures provided</p>
                             @endif

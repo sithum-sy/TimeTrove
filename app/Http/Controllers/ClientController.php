@@ -109,9 +109,15 @@ class ClientController extends Controller
 
         // If a picture is uploaded, store it and add its path to the data
         if ($request->hasFile('request_picture')) {
-            $path = $request->file('request_picture')->store('request_pictures', 'public');
-            $validatedData['request_picture'] = $path;
+            $file = $request->file('request_picture');
+            $extension = $file->getClientOriginalExtension();
+            $fileName = time() . '.' . $extension;
+            $filePath = 'uploads/request_pictures/' . $fileName;
+            $file->move('uploads/request_pictures/', $fileName);
+
+            $validatedData['request_picture'] = $filePath;
         }
+
 
         // Create a new service request record
         ServiceRequest::create($validatedData);
@@ -147,8 +153,13 @@ class ClientController extends Controller
 
         // If a new picture is uploaded, store it and update the path
         if ($request->hasFile('request_picture')) {
-            $path = $request->file('request_picture')->store('request_pictures', 'public');
-            $validatedData['request_picture'] = $path;
+            $file = $request->file('request_picture');
+            $extension = $file->getClientOriginalExtension();
+            $fileName = time() . '.' . $extension;
+            $filePath = 'uploads/request_pictures/' . $fileName;
+            $file->move('uploads/request_pictures/', $fileName);
+
+            $validatedData['request_picture'] = $filePath;
         }
 
         // Update the existing service request with the new data

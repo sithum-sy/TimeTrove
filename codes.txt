@@ -132,5 +132,8 @@ todo
 1. How to create a service category - DONE
 2. Mapping
 3. Profile pic
-4. services offered by provider profile
+4. services offered by provider profile- DONE
 5. add multiple request pictures
+6. receipt email
+7. CRUD for client request
+8. assigned in scheduler

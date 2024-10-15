@@ -79,7 +79,7 @@
                 </div>
                 <div class="card-body">
                     <p><strong>Total Appointments:</strong> <span id="totalAppointments">{{ $clientServiceRequests->count() }}</span></p>
-                    <p><strong>Ongoing Appointments:</strong> <span id="upcomingAppointments">{{ $upcomingAppointments->whereIn('status', ['pending', 'confirmed'])->count() }}</span></p>
+                    <p><strong>Ongoing Appointments:</strong> <span id="upcomingAppointments">{{ $upcomingAppointments->whereIn('status', ['pending', 'confirmed', 'assigned'])->count() }}</span></p>
                     <p><strong>Completed Appointments:</strong> <span id="upcomingAppointments">{{ $completedAppointments->where('status', 'completed')->count() }}</span></p>
                     <p><strong>Total Clients:</strong> <span id="totalClients">{{ $totalClients }}</span></p>
                 </div>

@@ -89,7 +89,7 @@
                         <div class="card-header">Pictures</div>
                         <div class="card-body">
                             @if($serviceRequest->request_picture)
-                            <img src="{{ asset('uploads/request_pictures/' . $serviceRequest->request_picture) }}" alt="Request Picture" class="img-fluid">
+                            <img src="{{ asset($serviceRequest->request_picture) }}" alt="Request Picture" class="img-fluid">
                             @else
                             <p>No pictures provided</p>
                             @endif
