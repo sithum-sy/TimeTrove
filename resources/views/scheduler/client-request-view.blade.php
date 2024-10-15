@@ -50,7 +50,9 @@
                                     <select id="service_provider" name="service_provider_id" class="form-control">
                                         @foreach($serviceProviders as $provider)
                                         <option value="{{ $provider->id }}">
-                                            {{ $provider->first_name }} {{ $provider->last_name }} - {{ $provider->phone_number }}
+                                            {{ $provider->first_name }} {{ $provider->last_name }} - Rating:
+                                            ( {{ number_format($provider->averageRating(), 1) }}/5.0)
+                                            ({{ $provider->ratingCount() }} {{ Str::plural('review', $provider->ratingCount()) }})
                                         </option>
                                         @endforeach
                                     </select>
@@ -157,6 +159,58 @@
                             <div class="mb-3">
                                 <label for="notes" class="form-label">Notes</label>
                                 <textarea class="form-control" id="notes" name="notes" rows="3" readonly>{{ $quotation->notes ?? '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @elseif ($serviceRequest->status === 'pending-payment' || $serviceRequest->status === 'completed')
+                <div class="col-md-8">
+                    <div class="card mb-3">
+                        <div class="card-header bg-primary text-white">
+                            Invoice Details
+                        </div>
+                        <div class="card-body">
+                            @csrf
+                            <input type="hidden" name="service_provider_id" value="{{ auth()->user()->id }}">
+
+                            <div class="mb-3">
+                                <label for="id" class="form-label">Invoice ID</label>
+                                <input type="number" step="0.5" class="form-control" id="id" name="id"
+                                    value="{{ $invoice->id }}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="actual_hours" class="form-label">Actual Hours Worked</label>
+                                <input type="number" step="0.5" class="form-control" id="actual_hours" name="actual_hours"
+                                    value="{{ $invoice->actual_hours }}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="final_hourly_rate" class="form-label">Hourly Rate (Rs)</label>
+                                <input type="number" class="form-control" id="final_hourly_rate" name="final_hourly_rate"
+                                    value="{{ $invoice->final_hourly_rate }}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="final_materials_cost" class="form-label">Materials Cost (Rs)</label>
+                                <input type="number" class="form-control" id="final_materials_cost" name="final_materials_cost"
+                                    value="{{ $invoice->final_materials_cost }}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="final_additional_charges" class="form-label">Additional Charges (Rs)</label>
+                                <input type="number" class="form-control" id="final_additional_charges" name="final_additional_charges"
+                                    value="{{ $invoice->final_additional_charges }}" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="final_total_amount" class="form-label"><strong>Total Amount (Rs)</strong></label>
+                                <input type="number" class="form-control" id="final_total_amount" name="final_total_amount" value="{{ $invoice->final_total_amount ?? '' }}" readonly>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="invoice_notes" class="form-label">Invoice Notes</label>
+                                <textarea class="form-control" id="invoice_notes" name="invoice_notes" rows="3">{{ $invoice->invoice_notes }}</textarea>
                             </div>
                         </div>
                     </div>

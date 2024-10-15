@@ -69,4 +69,19 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(ServiceRequest::class, 'service_provider_services');
     }
+
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class, 'service_provider_id');
+    }
+
+    public function averageRating()
+    {
+        return $this->ratings()->avg('rating') ?? 0;
+    }
+
+    public function ratingCount()
+    {
+        return $this->ratings()->count();
+    }
 }

@@ -17,14 +17,25 @@
                 {{ session('error') }}
             </div>
             @endif
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-4">
                 <h2>Service Request Details: {{ $serviceRequest->serviceCategory->name }}</h2>
-                <form action="{{ route('client.deleteRequest', $serviceRequest->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to cancel this request?');">
-                    @csrf
-                    @method('DELETE')
-                    <button type=" submit" class="btn btn-danger">Cancel Request</button>
-                </form>
+                <div class="ms-auto">
+                    @if(!in_array($serviceRequest->status, ['completed', 'started', 'pending-payment']))
+                    <form action="{{ route('client.deleteRequest', $serviceRequest->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to cancel this request?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger me-2">
+                            <i class="bi bi-x-circle"></i> Reject Request
+                        </button>
+                    </form>
+                    @endif
+                    <a href="{{ route('home') }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
             </div>
+
+
             <div class="row">
                 <div class="col-md-4">
                     <div class="card mb-3">
@@ -38,6 +49,10 @@
                             <p><strong>Date:</strong> {{ $serviceRequest->date }}</p>
                             <p><strong>Time:</strong> {{ $serviceRequest->time }}</p>
                             <p><strong>Status:</strong> {{ ucfirst($serviceRequest->status) }}</p>
+                            <p><strong>Service Provider:</strong> {{ $serviceRequest->serviceProvider->first_name }} {{ $serviceRequest->serviceProvider->last_name }}
+                                ( <i class="fas fa-star" style="color: gold;"></i> {{ number_format($serviceRequest->serviceProvider->averageRating(), 1) }}/5.0)
+                                ({{ $serviceRequest->serviceProvider->ratingCount() }} {{ Str::plural('review', $serviceRequest->serviceProvider->ratingCount()) }})
+                            </p>
                         </div>
                     </div>
                     <div class="card mb-3">
@@ -137,17 +152,105 @@
                                 <label for="notes" class="form-label">Notes</label>
                                 <textarea class="form-control" id="notes" rows="3" readonly>{{ $quotation->notes }}</textarea>
                             </div>
-                            <div class="d-flex mt-4">
-                                <a href="{{ route('client.completeServiceRequest', $serviceRequest->id) }}" class="btn btn-success me-2">Complete Service Request</a>
 
-                            </div>
                         </div>
                     </div>
                 </div>
-                @else
-                <div class="col-md-8">
+            </div>
 
+            @elseif (($serviceRequest->status === 'pending-payment') || ($serviceRequest->status === 'completed'))
+            <div class="col-md-8">
+                @if($serviceRequest->status === 'completed' && !$serviceRequest->rating)
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        Rate Service Provider
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ route('client.rateServiceProvider', $serviceRequest->id) }}" method="POST">
+                            @csrf
+                            <div class="mb-3">
+                                <label for="rating" class="form-label">Rating (1-5 stars)</label>
+                                <select class="form-select" id="rating" name="rating" required>
+                                    <option value="">Select rating</option>
+                                    <option value="1">1 star</option>
+                                    <option value="2">2 stars</option>
+                                    <option value="3">3 stars</option>
+                                    <option value="4">4 stars</option>
+                                    <option value="5">5 stars</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="comment" class="form-label">Comment</label>
+                                <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit Rating</button>
+                        </form>
+                    </div>
+                </div>
+                @elseif($serviceRequest->rating)
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        Your Rating
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Rating:</strong> {{ $serviceRequest->rating->rating }} stars</p>
+                        <p><strong>Comment:</strong> {{ $serviceRequest->rating->comment }}</p>
+                    </div>
+                </div>
+                @endif
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">
+                        Invoice Details
+                    </div>
+                    <div class="card-body">
+                        @csrf
+                        <input type="hidden" name="service_provider_id" value="{{ auth()->user()->id }}">
 
+                        <div class="mb-3">
+                            <label for="id" class="form-label">Invoice ID</label>
+                            <input type="number" step="0.5" class="form-control" id="id" name="id"
+                                value="{{ $invoice->id }}" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="actual_hours" class="form-label">Actual Hours Worked</label>
+                            <input type="number" step="0.5" class="form-control" id="actual_hours" name="actual_hours"
+                                value="{{ $invoice->actual_hours }}" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="final_hourly_rate" class="form-label">Hourly Rate (Rs)</label>
+                            <input type="number" class="form-control" id="final_hourly_rate" name="final_hourly_rate"
+                                value="{{ $invoice->final_hourly_rate }}" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="final_materials_cost" class="form-label">Materials Cost (Rs)</label>
+                            <input type="number" class="form-control" id="final_materials_cost" name="final_materials_cost"
+                                value="{{ $invoice->final_materials_cost }}" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="final_additional_charges" class="form-label">Additional Charges (Rs)</label>
+                            <input type="number" class="form-control" id="final_additional_charges" name="final_additional_charges"
+                                value="{{ $invoice->final_additional_charges }}" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="final_total_amount" class="form-label"><strong>Total Amount (Rs)</strong></label>
+                            <input type="number" class="form-control" id="final_total_amount" name="final_total_amount" value="{{ $invoice->final_total_amount ?? '' }}" readonly>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="invoice_notes" class="form-label">Invoice Notes</label>
+                            <textarea class="form-control" id="invoice_notes" name="invoice_notes" rows="3" readonly>{{ $invoice->invoice_notes }}</textarea>
+                        </div>
+                        @if($serviceRequest->status === 'pending-payment')
+                        <div class="d-flex mt-4">
+                            <a href="{{ route('client.completeServiceRequest', $serviceRequest->id) }}" class="btn btn-success me-2">Pay Now</a>
+                        </div>
+                        @endif
+                    </div>
                 </div>
             </div>
             @endif

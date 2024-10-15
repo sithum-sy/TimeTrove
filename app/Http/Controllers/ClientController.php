@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ServiceProviderConfirmationEmail;
 use App\Mail\ClientConfirmationEmail;
+use App\Models\Invoice;
 use App\Models\ServiceRequestSecurity;
 
 class ClientController extends Controller
@@ -188,10 +189,12 @@ class ClientController extends Controller
             ->firstOrFail();
 
         $quotation = Quotation::where('service_request_id', $serviceRequest->id)->latest()->first();
+        $invoice = Invoice::where('service_request_id', $serviceRequest->id)->latest()->first();
 
         return view('client.single-request-view', [
             'serviceRequest' => $serviceRequest,
             'quotation' => $quotation,
+            'invoice' => $invoice,
         ]);
     }
 
@@ -266,49 +269,30 @@ class ClientController extends Controller
         $serviceRequest->status = 'completed';
         $serviceRequest->save();
 
-        // Return the view with the modal for rating
-        // return response()->json([
-        //     'success' => true,
-        //     'message' => 'Service request completed successfully.',
-        //     'showRatingModal' => true
-        // ]);
-        return redirect('home')->with('status', 'Service request completed.');
+        return redirect()->back()->with('status', 'Payment Successful & Thank You for choosing TimeTove for your service request.');
     }
 
-    public function rateService(Request $request, $serviceRequestId)
+    public function rateServiceProvider(Request $request, $serviceRequestId)
     {
         $request->validate([
-            'rating' => 'required|integer|min:1|max:10',
-            'comment' => 'nullable|string|max:1000',
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:500',
         ]);
 
         $serviceRequest = ServiceRequest::findOrFail($serviceRequestId);
 
-        if ($serviceRequest->client_id != auth()->id()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized action.'
-            ], 403);
-        }
-
-        if ($serviceRequest->status != 'completed') {
-            return response()->json([
-                'success' => false,
-                'message' => 'You can only rate completed services.'
-            ], 400);
+        if ($serviceRequest->status !== 'completed' || $serviceRequest->rating) {
+            return redirect()->back()->with('error', 'Unable to submit rating.');
         }
 
         Rating::create([
             'service_request_id' => $serviceRequest->id,
             'client_id' => auth()->id(),
             'service_provider_id' => $serviceRequest->service_provider_id,
-            'rating' => $request->input('rating'),
-            'comment' => $request->input('comment'),
+            'rating' => $request->rating,
+            'comment' => $request->comment,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Thank you for your feedback!'
-        ]);
+        return redirect()->back()->with('status', 'Rating submitted successfully.');
     }
 }

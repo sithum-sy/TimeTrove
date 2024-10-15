@@ -43,11 +43,13 @@ class ServiceProviderController extends Controller
         })->get()->sortBy('name');
 
         $quotation = Quotation::where('service_request_id', $serviceRequest->id)->latest()->first();
+        $invoice = Invoice::where('service_request_id', $serviceRequest->id)->latest()->first();
 
         return view('provider.service-request-view', [
             'serviceRequest' => $serviceRequest,
             'serviceProviders' => $serviceProviders,
             'quotation' => $quotation,
+            'invoice' => $invoice,
         ]);
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Invoice;
 use App\Models\Quotation;
 use App\Models\ServiceCategory;
 use App\Models\ServiceProviderServices;
@@ -227,11 +228,13 @@ class SchedulerController extends Controller
 
 
         $quotation = Quotation::where('service_request_id', $serviceRequest->id)->latest()->first();
+        $invoice = Invoice::where('service_request_id', $serviceRequest->id)->latest()->first();
 
         return view('scheduler/client-request-view', [
             'serviceRequest' => $serviceRequest,
             'serviceProviders' => $serviceProviders,
             'quotation' => $quotation,
+            'invoice' => $invoice,
         ]);
     }
 

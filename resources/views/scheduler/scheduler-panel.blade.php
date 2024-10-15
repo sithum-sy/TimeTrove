@@ -135,8 +135,17 @@
                                     <td>{{ $request->date }} at {{ $request->time }}</td>
                                     <td><span class="badge bg-{{ $request->status == 'pending' ? 'warning' : 'success' }}">{{ ucfirst($request->status) }}</span></td>
                                     <td>
-                                        <a href="{{ route('scheduler.singleRequest.view', ['request_id' => $request->id, 'client_id' => $request->client_id]) }}" class="btn btn-primary btn-sm">Assign</a>
+                                        @if($request->status === 'pending')
+                                        <a href="{{ route('scheduler.singleRequest.view', ['request_id' => $request->id, 'client_id' => $request->client_id]) }}" class="btn btn-primary btn-sm">
+                                            Assign
+                                        </a>
+                                        @else
+                                        <a href="{{ route('scheduler.singleRequest.view', ['request_id' => $request->id, 'client_id' => $request->client_id]) }}" class="btn btn-primary btn-sm">
+                                            View
+                                        </a>
+                                        @endif
                                     </td>
+
                                 </tr>
                                 @empty
                                 <tr>

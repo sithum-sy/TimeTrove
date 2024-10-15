@@ -62,7 +62,7 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
         Route::get('/home/request/confirm/{requestId}/', [ClientController::class, 'confirm'])->name('client.confirm');
         Route::post('/home/request/reject/{requestId}/', [ClientController::class, 'rejectQuote'])->name('client.rejectQuote');
         Route::get('/home/request/complete/{requestId}/', [ClientController::class, 'completeServiceRequest'])->name('client.completeServiceRequest');
-        // Route::post('/home/request/rate/{requestId}/', [ClientController::class, 'rateService'])->name('client.rateService');
+        Route::post('/home/request/rate/{requestId}/', [ClientController::class, 'rateServiceProvider'])->name('client.rateServiceProvider');
         Route::get('/profile', [ClientController::class, 'profileView'])->name('client.profileView');
         Route::get('/profile/edit', [ClientController::class, 'editProfile'])->name('client.editProfile');
         Route::put('/profile/update', [ClientController::class, 'updateProfile'])->name('client.updateProfile');
