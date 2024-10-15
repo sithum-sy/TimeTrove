@@ -30,7 +30,7 @@
                     </form>
                     @endif
                     <a href="{{ route('home') }}" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left"></i> Back to Dashboard
+                        <i class="fa-solid fa-backward"></i> Back to Dashboard
                     </a>
                 </div>
             </div>
@@ -180,7 +180,7 @@
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label for="comment" class="form-label">Comment</label>
+                                <label for="comment" class="form-label">Review</label>
                                 <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
                             </div>
                             <button type="submit" class="btn btn-primary">Submit Rating</button>
@@ -194,7 +194,7 @@
                     </div>
                     <div class="card-body">
                         <p><strong>Rating:</strong> {{ $serviceRequest->rating->rating }} stars</p>
-                        <p><strong>Comment:</strong> {{ $serviceRequest->rating->comment }}</p>
+                        <p><strong>Review:</strong> {{ $serviceRequest->rating->comment }}</p>
                     </div>
                 </div>
                 @endif

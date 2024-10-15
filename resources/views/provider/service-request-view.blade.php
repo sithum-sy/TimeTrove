@@ -4,16 +4,24 @@
 <div class="container-fluid mt-4">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center justify-content-between mb-4">
                 <h2>Service Request Details: {{ $serviceRequest->serviceCategory->name }}</h2>
-                <form action="{{ route('provider.serviceRequest.reject', $serviceRequest->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to reject this request?');">
-                    @csrf
+                <div class="ms-auto">
                     @if(!in_array($serviceRequest->status, ['confirmed', 'completed', 'started', 'pending-payment']))
-                    <button type="submit" class="btn btn-danger">Reject Request</button>
+                    <form action="{{ route('provider.serviceRequest.reject', $serviceRequest->id) }}" method="POST" class="d-inline-block" onsubmit="return confirm('Are you sure you want to cancel this request?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger me-2">
+                            <i class="bi bi-x-circle"></i> Reject Request
+                        </button>
+                    </form>
                     @endif
-
-                </form>
+                    <a href="{{ route('home') }}" class="btn btn-secondary">
+                        <i class="fa-solid fa-backward"></i> Back to Dashboard
+                    </a>
+                </div>
             </div>
+
             {{-- Success Message --}}
             @if(session('status'))
             <div class="alert alert-success">
@@ -321,8 +329,26 @@
                     </div>
                 </div>
 
-                @elseif ($serviceRequest->status === 'pending-payment')
+                @elseif (($serviceRequest->status === 'pending-payment') || ($serviceRequest->status === 'completed'))
                 <div class="col-md-8">
+                    @if($serviceRequest->status === 'completed' && !$serviceRequest->rating)
+                    <div class="card mb-3">
+                        <div class="card-header bg-primary text-white">
+                            Rate Service Provider
+                        </div>
+
+                    </div>
+                    @elseif($serviceRequest->rating)
+                    <div class="card mb-3">
+                        <div class="card-header bg-primary text-white">
+                            Ratings Received for the Service Request
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Rating:</strong> <i class="fas fa-star" style="color: gold;"></i> {{ $serviceRequest->rating->rating }} stars </p>
+                            <p><strong>Review:</strong> {{ $serviceRequest->rating->comment }}</p>
+                        </div>
+                    </div>
+                    @endif
                     <div class="card mb-3">
                         <div class="card-header bg-primary text-white">
                             Invoice Details

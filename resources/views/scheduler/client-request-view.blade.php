@@ -4,13 +4,22 @@
 <div class="container-fluid mt-4">
     <div class="row justify-content-center">
         <div class="col-lg-10">
-            <h2 class="mb-4">Service Request Details: {{ $serviceRequest->serviceCategory->name }}</h2>
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h2 class="mb-4">Service Request Details: {{ $serviceRequest->serviceCategory->name }}</h2>
+                <div class="ms-auto">
+                    <a href="{{ route('home') }}" class="btn btn-secondary">
+                        <i class="fa-solid fa-backward"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+
             {{-- Success Message --}}
             @if(session('status'))
             <div class="alert alert-success">
                 {{ session('status') }}
             </div>
             @endif
+
             <div class="row">
                 <div class="col-md-4">
                     <div class="card mb-3">
@@ -24,6 +33,12 @@
                             <p><strong>Date:</strong> {{ $serviceRequest->date }}</p>
                             <p><strong>Time:</strong> {{ $serviceRequest->time }}</p>
                             <p><strong>Status:</strong> {{ ucfirst($serviceRequest->status) }}</p>
+                            @if($serviceRequest->status !== 'pending')
+                            <p><strong>Service Provider:</strong> {{ $serviceRequest->serviceProvider->first_name }} {{ $serviceRequest->serviceProvider->last_name }}
+                                ( <i class="fas fa-star" style="color: gold;"></i> {{ number_format($serviceRequest->serviceProvider->averageRating(), 1) }}/5.0)
+                                ({{ $serviceRequest->serviceProvider->ratingCount() }} {{ Str::plural('review', $serviceRequest->serviceProvider->ratingCount()) }})
+                            </p>
+                            @endif
                         </div>
                     </div>
                     <div class="card mb-3">
@@ -51,7 +66,7 @@
                                         @foreach($serviceProviders as $provider)
                                         <option value="{{ $provider->id }}">
                                             {{ $provider->first_name }} {{ $provider->last_name }} - Rating:
-                                            ( {{ number_format($provider->averageRating(), 1) }}/5.0)
+                                            {{ number_format($provider->averageRating(), 1) }}/5.0
                                             ({{ $provider->ratingCount() }} {{ Str::plural('review', $provider->ratingCount()) }})
                                         </option>
                                         @endforeach
@@ -115,7 +130,7 @@
                         </div>
                     </div>
                 </div>
-                @elseif ($serviceRequest->status === 'pending-approval')
+                @elseif (($serviceRequest->status === 'pending-approval') || ($serviceRequest->status === 'confirmed'))
                 <div class="col-md-8">
                     <div class="card mb-3">
                         <div class="card-header">Quotation For Service Request</div>

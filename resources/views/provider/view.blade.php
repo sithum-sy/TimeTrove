@@ -42,6 +42,11 @@
                                     <strong>Gender:</strong>
                                     <span>{{ ucfirst($serviceProvider->gender) }}</span>
                                 </li>
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <strong>Ratings:</strong>
+                                    <span><i class="fas fa-star" style="color: gold;"></i>{{ number_format($serviceProvider->averageRating(), 1) }}/5.0
+                                        ({{ $serviceProvider->ratingCount() }} {{ Str::plural('review', $serviceProvider->ratingCount()) }})</span>
+                                </li>
                             </ul>
                         </div>
                     </div>

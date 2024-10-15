@@ -387,8 +387,11 @@ class SchedulerController extends Controller
             User::USER_ROLE_SERVICE_PROVIDER
         )->findOrFail($id);
 
+        $serviceProviderServices = ServiceProviderServices::where('service_provider_id', $serviceProvider->id)->get();
+
         return view('scheduler.service_provider.view', [
             'serviceProvider' => $serviceProvider,
+            'serviceProviderServices' => $serviceProviderServices,
         ]);
     }
 
