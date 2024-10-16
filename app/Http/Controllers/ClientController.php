@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ServiceProviderConfirmationEmail;
 use App\Mail\ClientConfirmationEmail;
+use App\Mail\ClientReceipt;
+use App\Mail\ServiceProviderReceipt;
 use App\Models\Invoice;
 use App\Models\ServiceRequestSecurity;
 
@@ -276,9 +278,15 @@ class ClientController extends Controller
         // Find the service request
         $serviceRequest = ServiceRequest::findOrFail($requestId);
 
+        $invoice = Invoice::where('service_request_id', $requestId)
+            ->firstOrFail();
+
         // Update status to completed
         $serviceRequest->status = 'completed';
         $serviceRequest->save();
+
+        Mail::to($serviceRequest->client->email)->send(new ClientReceipt($serviceRequest, $invoice));
+        Mail::to($serviceRequest->serviceProvider->email)->send(new ServiceProviderReceipt($serviceRequest, $invoice));
 
         return redirect()->back()->with('status', 'Payment Successful & Thank You for choosing TimeTove for your service request.');
     }

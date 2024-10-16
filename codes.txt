@@ -52,6 +52,16 @@ to seed - php artisan db:seed
 
 to create a symbolic link - php artisan storage:link
 
+to create middleware - php artisan make:middleware CheckAdminUserRole
+
+to create a data factory - php artisan make:factory PublicationFactory --model=Publication
+
+to create email notification - php artisan make:mail CommentNotificationMail
+
+to create email notification based on time - php artisan make:command SendDailySummary
+
+send email update - php artisan email:send-daily-summary
+
 ADDING SLUGS
    1. composer require cviebrock/eloquent-sluggable
    2. php artisan vendor:publish --provider="Cviebrock\EloquentSluggable\ServiceProvider"
@@ -134,5 +144,5 @@ todo
 3. Profile pic
 4. services offered by provider profile- DONE
 5. add multiple request pictures
-6. receipt email
+6. receipt email - DONE
 7. CRUD for client request
