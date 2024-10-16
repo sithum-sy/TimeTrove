@@ -47,7 +47,13 @@ class HomeController extends Controller
         $serviceRequests = ServiceRequest::where('client_id', Auth::id())
             ->with('serviceCategory')
             ->orderBy('updated_at', 'desc')
-            ->paginate(8);
+            ->paginate(12);
+
+        $totalServiceRequests = ServiceRequest::where('client_id', Auth::id())->count();
+        $totalPendingRequests = ServiceRequest::where('client_id', Auth::id())->where('status', 'pending')->count();
+        $totalConfirmedRequests = ServiceRequest::where('client_id', Auth::id())->where('status', 'confirmed')->count();
+        $totalPendingPayments = ServiceRequest::where('client_id', Auth::id())->where('status', 'pending-payment')->count();
+        $totalCompletedRequests = ServiceRequest::where('client_id', Auth::id())->where('status', 'completed')->count();
 
         $statuses = ServiceRequest::distinct()->pluck('status');
 
@@ -60,7 +66,7 @@ class HomeController extends Controller
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc');
 
-        $upcomingAppointments = ServiceRequest::whereIn('status', ['pending', 'confirmed', 'started'])
+        $upcomingAppointments = ServiceRequest::whereIn('status', ['pending', 'confirmed', 'started', 'assigned'])
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc')
             ->paginate(8, ['*'], 'upcomingAppointmentsPage');
@@ -78,21 +84,24 @@ class HomeController extends Controller
         $tasks = ServiceRequest::whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'started', 'pending-payment',  'completed'])
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc')
-            ->paginate(8);
+            ->paginate(12);
 
         //Get count of all unique client ids
         $totalClients = $clientServiceRequests->pluck('client_id')->unique()->count();
-
+        $totalAppointments = ServiceRequest::count();
+        $totalUpcomingAppointments = ServiceRequest::whereIn('status', ['pending', 'confirmed', 'started', 'assigned'])->count();
+        $totalCompletedAppointments = ServiceRequest::whereIn('status', ['pending-payment', 'completed'])->with(['client', 'serviceCategory'])->count();
 
         // Retrieve assigned tasks for the logged-in service provider
         $assignedTasks = ServiceRequest::where('service_provider_id', Auth::id())
             ->whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'pending-payment', 'completed'])
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc')
-            ->paginate(8);
+            ->paginate(12);
 
-
-
+        $totalAssignedTasks = ServiceRequest::where('service_provider_id', Auth::id())->where('status', 'assigned')->count();
+        $totalUpcomimgTasks = ServiceRequest::where('service_provider_id', Auth::id())->where('status', 'confirmed')->count();
+        $totalCompletedTasks = ServiceRequest::where('service_provider_id', Auth::id())->where('status', 'completed')->count();
 
         // Pass the retrieved data to the 'home' view
         return view('home', [
@@ -108,6 +117,17 @@ class HomeController extends Controller
             'completedAppointments' => $completedAppointments,
             'tasks' => $tasks,
             'statuses' => $statuses,
+            'totalAppointments' => $totalAppointments,
+            'totalUpcomingAppointments' => $totalUpcomingAppointments,
+            'totalCompletedAppointments' => $totalCompletedAppointments,
+            'totalAssignedTasks' => $totalAssignedTasks,
+            'totalUpcomimgTasks' => $totalUpcomimgTasks,
+            'totalCompletedTasks' => $totalCompletedTasks,
+            'totalServiceRequests' => $totalServiceRequests,
+            'totalPendingRequests' => $totalPendingRequests,
+            'totalConfirmedRequests' => $totalConfirmedRequests,
+            'totalPendingPayments' => $totalPendingPayments,
+            'totalCompletedRequests' => $totalCompletedRequests,
         ]);
     }
 
@@ -119,11 +139,21 @@ class HomeController extends Controller
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc');
 
+        $totalServiceRequests = ServiceRequest::where('client_id', Auth::id())->count();
+        $totalPendingRequests = ServiceRequest::where('client_id', Auth::id())->where('status', 'pending')->count();
+        $totalConfirmedRequests = ServiceRequest::where('client_id', Auth::id())->where('status', 'confirmed')->count();
+        $totalPendingPayments = ServiceRequest::where('client_id', Auth::id())->where('status', 'pending-payment')->count();
+        $totalCompletedRequests = ServiceRequest::where('client_id', Auth::id())->where('status', 'completed')->count();
+
         $assignedTasks = ServiceRequest::where('service_provider_id', Auth::id())
             ->whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'started', 'pending-payment', 'completed'])
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc')
-            ->paginate(8);
+            ->paginate(12);
+
+        $totalAssignedTasks = ServiceRequest::where('service_provider_id', Auth::id())->where('status', 'assigned')->count();
+        $totalUpcomimgTasks = ServiceRequest::where('service_provider_id', Auth::id())->where('status', 'confirmed')->count();
+        $totalCompletedTasks = ServiceRequest::where('service_provider_id', Auth::id())->where('status', 'completed')->count();
 
         // Base query with relationships
         $baseQuery = ServiceRequest::query()
@@ -147,12 +177,16 @@ class HomeController extends Controller
 
         // Get total unique clients based on filtered results
         $totalClients = $filteredQuery->pluck('client_id')->unique()->count();
+        $totalAppointments = ServiceRequest::count();
+        $totalUpcomingAppointments = ServiceRequest::whereIn('status', ['pending', 'confirmed', 'started', 'assigned'])->count();
+        $totalCompletedAppointments = ServiceRequest::whereIn('status', ['pending-payment', 'completed'])->with(['client', 'serviceCategory'])->count();
+
 
         $statuses = ServiceRequest::distinct()->pluck('status');
 
         $data = [
             'upcomingAppointments' => $upcomingAppointments
-                ->whereIn('status', ['pending', 'confirmed', 'started'])
+                ->whereIn('status', ['pending', 'confirmed', 'started', 'assigned'])
                 ->latest()
                 ->paginate(10)
                 ->withQueryString(),
@@ -181,6 +215,17 @@ class HomeController extends Controller
 
             'serviceCategories' => ServiceCategory::all(),
             'totalClients' => $totalClients,
+            'totalAppointments' => $totalAppointments,
+            'totalUpcomingAppointments' => $totalUpcomingAppointments,
+            'totalCompletedAppointments' => $totalCompletedAppointments,
+            'totalAssignedTasks' => $totalAssignedTasks,
+            'totalUpcomimgTasks' => $totalUpcomimgTasks,
+            'totalCompletedTasks' => $totalCompletedTasks,
+            'totalServiceRequests' => $totalServiceRequests,
+            'totalPendingRequests' => $totalPendingRequests,
+            'totalConfirmedRequests' => $totalConfirmedRequests,
+            'totalPendingPayments' => $totalPendingPayments,
+            'totalCompletedRequests' => $totalCompletedRequests,
         ];
 
 

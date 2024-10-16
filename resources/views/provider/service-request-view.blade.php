@@ -85,16 +85,30 @@
                             <p>{{ $serviceRequest->description }}</p>
                         </div>
                     </div>
+
                     <div class="card mb-3">
                         <div class="card-header">Pictures</div>
                         <div class="card-body">
                             @if($serviceRequest->request_picture)
-                            <img src="{{ asset($serviceRequest->request_picture) }}" alt="Request Picture" class="img-fluid">
+                            <img src="{{ asset($serviceRequest->request_picture) }}" alt="Request Picture" class="img-fluid"
+                                style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#imageModal">
                             @else
                             <p>No pictures provided</p>
                             @endif
                         </div>
                     </div>
+
+                    <!-- Modal for Fullscreen Image -->
+                    <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-body">
+                                    <img src="{{ asset($serviceRequest->request_picture) }}" alt="Request Picture" class="img-fluid">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
                 @if ($serviceRequest->status === 'assigned')

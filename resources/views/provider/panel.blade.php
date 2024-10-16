@@ -78,10 +78,9 @@
                     <h5 class="card-title mb-0">Statistics</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Total Assigned Tasks:</strong> <span id="totalAssignedTasks">{{ $assignedTasks->count() }}</span></p>
-                    <p><strong>Upcoming Tasks:</strong> <span id="completedTasks">{{ $assignedTasks->where('status', 'confirmed')->count() }}</span></p>
-                    <p><strong>Completed Tasks:</strong> <span id="completedTasks">{{ $assignedTasks->where('status', 'completed')->count() }}</span></p>
-                    <p><strong>This Month's Earnings:</strong> $<span id="monthlyEarnings">Loading...</span></p>
+                    <p><strong>Total Assigned Tasks:</strong> <span id="totalAssignedTasks">{{ $totalAssignedTasks }}</span></p>
+                    <p><strong>Total Upcoming Tasks:</strong> <span id="completedTasks">{{ $totalUpcomimgTasks }}</span></p>
+                    <p><strong>Completed Tasks:</strong> <span id="completedTasks">{{ $totalCompletedTasks }}</span></p>
                 </div>
             </div>
 
@@ -101,7 +100,7 @@
         <div class="col-md-9">
             <div class="card">
                 <div class="card-header bg-dark text-white">
-                    <h5 class="card-title mb-0">Your Assigned Tasks</h5>
+                    <h5 class="card-title mb-0">Your Tasks</h5>
                 </div>
                 <div class="card-body">
                     @if (session('status'))

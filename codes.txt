@@ -136,4 +136,3 @@ todo
 5. add multiple request pictures
 6. receipt email
 7. CRUD for client request
-8. assigned in scheduler

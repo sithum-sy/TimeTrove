@@ -78,9 +78,9 @@
                     <h5 class="card-title mb-0">Statistics</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Total Appointments:</strong> <span id="totalAppointments">{{ $clientServiceRequests->count() }}</span></p>
-                    <p><strong>Ongoing Appointments:</strong> <span id="upcomingAppointments">{{ $upcomingAppointments->whereIn('status', ['pending', 'confirmed', 'assigned'])->count() }}</span></p>
-                    <p><strong>Completed Appointments:</strong> <span id="upcomingAppointments">{{ $completedAppointments->where('status', 'completed')->count() }}</span></p>
+                    <p><strong>Total Appointments:</strong> <span id="totalAppointments">{{ $totalAppointments }}</span></p>
+                    <p><strong>Ongoing Appointments:</strong> <span id="upcomingAppointments">{{ $totalUpcomingAppointments }}</span></p>
+                    <p><strong>Completed Appointments:</strong> <span id="upcomingAppointments">{{ $totalCompletedAppointments }}</span></p>
                     <p><strong>Total Clients:</strong> <span id="totalClients">{{ $totalClients }}</span></p>
                 </div>
             </div>

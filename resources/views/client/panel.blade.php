@@ -79,10 +79,11 @@
                     <h5 class="card-title mb-0">Statistics</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Total Requests:</strong> <span id="totalRequests">{{ $serviceRequests->count() }}</span></p>
-                    <p><strong>Pending Requests:</strong> <span id="pendingRequests">{{ $serviceRequests->where('status', 'pending')->count() }}</span></p>
-                    <p><strong>Confirmed Requests:</strong> <span id="comfirmedRequests">{{ $serviceRequests->where('status', 'confirmed')->count() }}</span></p>
-                    <p><strong>Completed Requests:</strong> <span id="completedRequests">{{ $serviceRequests->where('status', 'completed')->count() }}</span></p>
+                    <p><strong>Total Requests:</strong> <span id="totalRequests">{{ $totalServiceRequests }}</span></p>
+                    <p><strong>Pending Requests:</strong> <span id="pendingRequests">{{ $totalPendingRequests }}</span></p>
+                    <p><strong>Confirmed Requests:</strong> <span id="comfirmedRequests">{{ $totalConfirmedRequests }}</span></p>
+                    <p><strong>Pending-Payment:</strong> <span id="comfirmedRequests">{{ $totalPendingPayments }}</span></p>
+                    <p><strong>Completed Requests:</strong> <span id="completedRequests">{{ $totalCompletedRequests }}</span></p>
                 </div>
             </div>
 
@@ -207,35 +208,12 @@
                     </div>
                     <div class="mb-3">
                         <label for="request_picture" class="form-label">Pictures</label>
-                        <input type="file" class="form-control" id="request_picture" name="request_picture">
+                        <input type="file" class="form-control" id="request_picture" name="request_pictures">
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-success">Submit Request</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Edit Service Request Modal -->
-<div class="modal fade" id="editServiceRequestModal" tabindex="-1" aria-labelledby="editServiceRequestModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="editServiceRequestModalLabel">Edit Service Request</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form id="editServiceRequestForm" method="POST" enctype="multipart/form-data">
-                @csrf
-                @method('PUT')
-                <div class="modal-body">
-                    <!-- Form fields (similar to the add modal, but with 'edit_' prefix) -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Update Request</button>
                 </div>
             </form>
         </div>
