@@ -28,6 +28,52 @@
                             <i class="bi bi-x-circle"></i> Cancel Request
                         </button>
                     </form>
+                    @elseif($serviceRequest->status == 'pending-payment')
+                    <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#quotationModal">
+                        <i class="fas fa-file-invoice me-2"></i> View Quotation
+                    </button>
+
+                    <!-- Quotation Modal -->
+                    <div class="modal fade" id="quotationModal" tabindex="-1" aria-labelledby="quotationModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header bg-primary text-white">
+                                    <h5 class="modal-title" id="quotationModalLabel">Quotation Details</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="mb-3">
+                                        <label for="estimated_hours" class="form-label">Estimated Hours</label>
+                                        <input type="number" class="form-control" id="estimated_hours" value="{{ $quotation->estimated_hours }}" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="hourly_rate" class="form-label">Hourly Rate (Rs)</label>
+                                        <input type="number" class="form-control" id="hourly_rate" value="{{ $quotation->hourly_rate }}" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="materials_cost" class="form-label">Materials Cost (Rs)</label>
+                                        <input type="number" class="form-control" id="materials_cost" value="{{ $quotation->materials_cost }}" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="additional_charges" class="form-label">Additional Charges (Rs)</label>
+                                        <input type="number" class="form-control" id="additional_charges" value="{{ $quotation->additional_charges }}" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="total_charges" class="form-label"><strong>Total Quotation Amount (Rs)</strong></label>
+                                        <input type="number" class="form-control" id="total_charges" value="{{ $quotation->total_charges }}" readonly>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="notes" class="form-label">Quotation Notes</label>
+                                        <textarea class="form-control" id="notes" rows="3" readonly>{{ $quotation->notes }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     @endif
                     <a href="{{ route('home') }}" class="btn btn-secondary">
                         <i class="fa-solid fa-backward"></i> Back to Dashboard
@@ -213,6 +259,8 @@
                     </div>
                 </div>
                 @endif
+
+
                 <div class="card mb-3">
                     <div class="card-header bg-primary text-white">
                         Invoice Details
@@ -308,6 +356,8 @@
         </div>
     </div>
 </div>
+
+
 
 
 @endsection

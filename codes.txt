@@ -146,3 +146,4 @@ todo
 5. add multiple request pictures
 6. receipt email - DONE
 7. CRUD for client request
+8. View quote in client - DONE
