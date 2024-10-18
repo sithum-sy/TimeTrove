@@ -196,8 +196,11 @@
                     </div>
                     <div class="mb-3">
                         <label for="location" class="form-label">Location</label>
-                        <input type="text" class="form-control" id="location" name="location" required>
+                        <input type="text" class="form-control" id="location" name="location" placeholder="Select from map" required readonly>
                     </div>
+                    <input type="hidden" id="latitude" name="latitude" required>
+                    <input type="hidden" id="longitude" name="longitude" required>
+                    <div id="map" style="height: 300px;"></div> <!-- Add a div for the map -->
                     <div class="mb-3">
                         <label for="date" class="form-label">Date</label>
                         <input type="date" class="form-control" id="date" name="date" required>
@@ -219,5 +222,57 @@
         </div>
     </div>
 </div>
-
 @endsection
+
+
+@push('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    // Initialize the map when the modal is shown
+    $('#addServiceRequestModal').on('shown.bs.modal', function() {
+        var map = L.map('map').setView([6.9271, 79.9615], 13); // Set initial view to Colombo
+
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        // Create a marker
+        var marker;
+
+        // Map click event to set location and marker
+        map.on('click', function(e) {
+            var lat = e.latlng.lat;
+            var lng = e.latlng.lng;
+
+            // If marker exists, remove it
+            if (marker) {
+                map.removeLayer(marker);
+            }
+
+            // Add a new marker
+            marker = L.marker([lat, lng]).addTo(map);
+            marker.bindPopup("You clicked at " + lat + ", " + lng).openPopup();
+
+            // Set the latitude and longitude input fields
+            $('#latitude').val(lat);
+            $('#longitude').val(lng);
+
+            // Reverse geocode the coordinates to get the location name
+            $.get(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`, function(data) {
+                if (data && data.display_name) {
+                    // Update the location input with the formatted address
+                    $('#location').val(data.display_name);
+                } else {
+                    $('#location').val('Location not found');
+                }
+            }).fail(function() {
+                $('#location').val('Error fetching location');
+            });
+        });
+    });
+</script>
+@endpush

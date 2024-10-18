@@ -84,4 +84,9 @@ class User extends Authenticatable
     {
         return $this->ratings()->count();
     }
+
+    public function serviceRequestsForServiceProviders()
+    {
+        return $this->hasMany(ServiceRequest::class, 'service_provider_id');
+    }
 }

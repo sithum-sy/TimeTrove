@@ -272,6 +272,8 @@ class ServiceProviderController extends Controller
             'availability' => ['required', 'string'],
             'rate' => ['required', 'numeric'],
             'city' => ['required', 'string'],
+            'latitude' => ['required', 'numeric'],
+            'longitude' => ['required', 'numeric'],
             'service_category_id' => ['required', 'exists:service_categories,id'],
         ]);
 
@@ -286,6 +288,8 @@ class ServiceProviderController extends Controller
                 'availability' => $validatedData['availability'],
                 'rate' => $validatedData['rate'],
                 'city' => $validatedData['city'],
+                'latitude' => $validatedData['latitude'],
+                'longitude' => $validatedData['longitude'],
             ]);
         });
 
@@ -316,6 +320,8 @@ class ServiceProviderController extends Controller
             'availability' => ['required', 'string'],
             'rate' => ['required', 'numeric'],
             'city' => ['required', 'string'],
+            'latitude' => ['required', 'numeric'],
+            'longitude' => ['required', 'numeric'],
             'service_category_id' => ['required', 'exists:service_categories,id'],
         ]);
 

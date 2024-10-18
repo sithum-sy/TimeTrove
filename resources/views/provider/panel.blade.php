@@ -20,7 +20,7 @@
                         <i class="fas fa-user-cog"></i> View Profile
                     </a>
                     <a href="{{ route('provider.schedule') }}" class="btn btn-warning btn-block">
-                        <i class="fas fa-cog"></i> View My Schedule
+                        <i class="fas fa-calendar-alt"></i> View My Schedule
                     </a>
                 </div>
             </div>

@@ -18,6 +18,8 @@ class ServiceRequest extends Model
         'status',
         'request_picture',
         'location',
+        'latitude',
+        'longitude',
     ];
 
     public function client()

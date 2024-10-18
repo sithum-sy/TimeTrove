@@ -21,6 +21,7 @@
 
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.css' rel='stylesheet' />
 
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
     <style>
         body {
@@ -104,6 +105,13 @@
 
         .star.selected {
             color: gold;
+        }
+
+        .blurred-option {
+            color: #6c757d;
+            /* Gray color */
+            opacity: 0.5;
+            /* Reduce opacity to indicate unavailability */
         }
     </style>
 

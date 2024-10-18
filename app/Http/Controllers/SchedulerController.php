@@ -218,25 +218,48 @@ class SchedulerController extends Controller
             ->with('serviceCategory')
             ->firstOrFail();
 
+        $clientLat = $serviceRequest->latitude;
+        $clientLng = $serviceRequest->longitude;
         $serviceCategoryId = $serviceRequest->serviceCategory->id;
+        $distanceThreshold = 10; // Set your distance threshold in kilometers
+
+        // Get service providers by service category
         $serviceProviders = User::where('is_active', 1)
             ->whereHas('serviceProviderServices', function ($query) use ($serviceCategoryId) {
-                $query->where('service_category_id', $serviceCategoryId);
+                $query->where('service_category_id', $serviceCategoryId)
+                    ->whereNotNull('latitude')
+                    ->whereNotNull('longitude');
             })
-            ->get()
-            ->sortBy('name');
+            ->select('users.*')
+            ->get();
 
+        // Filter service providers by location
+        $filteredProviders = $serviceProviders->filter(function ($provider) use ($clientLat, $clientLng, $distanceThreshold) {
+            $latitude = $provider->serviceProviderServices->first()->latitude;
+            $longitude = $provider->serviceProviderServices->first()->longitude;
+
+            $distance = (6371 * acos(
+                cos(deg2rad($clientLat)) *
+                    cos(deg2rad($latitude)) *
+                    cos(deg2rad($longitude) - deg2rad($clientLng)) +
+                    sin(deg2rad($clientLat)) *
+                    sin(deg2rad($latitude))
+            ));
+
+            return $distance <= $distanceThreshold;
+        });
 
         $quotation = Quotation::where('service_request_id', $serviceRequest->id)->latest()->first();
         $invoice = Invoice::where('service_request_id', $serviceRequest->id)->latest()->first();
 
         return view('scheduler/client-request-view', [
             'serviceRequest' => $serviceRequest,
-            'serviceProviders' => $serviceProviders,
+            'serviceProviders' => $filteredProviders,
             'quotation' => $quotation,
             'invoice' => $invoice,
         ]);
     }
+
 
     //assign service request to service provider
     public function assignProvider(Request $request, $request_id)

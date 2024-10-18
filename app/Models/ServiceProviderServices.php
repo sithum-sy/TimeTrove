@@ -16,6 +16,8 @@ class ServiceProviderServices extends Model
         'availability',
         'rate',
         'city',
+        'latitude',
+        'longitude',
     ];
 
     public function user()

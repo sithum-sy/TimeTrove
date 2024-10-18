@@ -64,10 +64,19 @@
                                     <label for="service_provider">Select Service Provider</label>
                                     <select id="service_provider" name="service_provider_id" class="form-control">
                                         @foreach($serviceProviders as $provider)
-                                        <option value="{{ $provider->id }}">
-                                            {{ $provider->first_name }} {{ $provider->last_name }} - Rating:
-                                            {{ number_format($provider->averageRating(), 1) }}/5.0
+                                        @php
+                                        $hasConfirmedRequest = $provider->serviceRequestsForServiceProviders()
+                                        ->where('status', 'confirmed')
+                                        ->where('date', $serviceRequest->date)
+                                        ->exists();
+                                        @endphp
+                                        <option value="{{ $provider->id }}"
+                                            {{ $hasConfirmedRequest ? 'disabled' : '' }}
+                                            class="{{ $hasConfirmedRequest ? 'blurred-option' : '' }}">
+                                            {{ $provider->first_name }} {{ $provider->last_name }} -
+                                            Rating: {{ number_format($provider->averageRating(), 1) }}/5.0
                                             ({{ $provider->ratingCount() }} {{ Str::plural('review', $provider->ratingCount()) }})
+                                            @if($hasConfirmedRequest) - Unavailable @endif
                                         </option>
                                         @endforeach
                                     </select>

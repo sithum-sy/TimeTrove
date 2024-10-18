@@ -102,7 +102,9 @@ class ClientController extends Controller
             'time' => 'required|date_format:H:i',
             'request_picture' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'description' => 'nullable|string',
-            'location' => 'required|string'
+            'location' => 'required|string',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
         ]);
 
         // Add the authenticated client's ID and default status to the validated data
@@ -160,7 +162,9 @@ class ClientController extends Controller
             'time' => 'required',
             'request_picture' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'description' => 'nullable|string',
-            'location' => 'required|string'
+            'location' => 'required|string',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
         ]);
 
         // If a new picture is uploaded, store it and update the path
