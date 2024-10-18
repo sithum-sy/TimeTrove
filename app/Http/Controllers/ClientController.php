@@ -41,6 +41,7 @@ class ClientController extends Controller
         ]);
     }
 
+    // Client profile view
     public function profileView()
     {
         $client = Auth::user();
@@ -54,6 +55,7 @@ class ClientController extends Controller
         ]);
     }
 
+    // Client profile edit
     public function editProfile()
     {
         $client = Auth::user();
@@ -63,6 +65,7 @@ class ClientController extends Controller
         ]);
     }
 
+    // Client profile update
     public function updateProfile(Request $request)
     {
         $client = Auth::user();
@@ -82,7 +85,6 @@ class ClientController extends Controller
             'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
 
-        // If a picture is uploaded, store it and add its path to the data
         if ($request->hasFile('profile_picture')) {
             $file = $request->file('profile_picture');
             $extension = $file->getClientOriginalExtension();
@@ -108,7 +110,6 @@ class ClientController extends Controller
      */
     public function addRequest(Request $request)
     {
-        // Validate the request data
         $validatedData = $request->validate([
             'service_category_id' => 'required|exists:service_categories,id',
             'date' => 'required|date',
@@ -124,7 +125,6 @@ class ClientController extends Controller
         $validatedData['client_id'] = Auth::id();
         $validatedData['status'] = 'pending';
 
-        // If a picture is uploaded, store it and add its path to the data
         if ($request->hasFile('request_picture')) {
             $file = $request->file('request_picture');
             $extension = $file->getClientOriginalExtension();
@@ -135,14 +135,13 @@ class ClientController extends Controller
             $validatedData['request_picture'] = $filePath;
         }
 
-
         // Create a new service request record
         ServiceRequest::create($validatedData);
 
-        // Redirect back to the client panel with a success message
         return redirect()->route('home')->with('success', 'Service request added successfully.');
     }
 
+    // Edit service request by client
     public function editRequest($id)
     {
         $serviceRequest = ServiceRequest::findOrFail($id);
@@ -150,7 +149,6 @@ class ClientController extends Controller
 
         return view("client.edit-request", compact('serviceRequest', 'serviceCategories'));
     }
-
 
 
     /**
@@ -162,13 +160,8 @@ class ClientController extends Controller
      */
     public function updateRequest(Request $request, $requestId)
     {
-        // Find the service request by ID, or fail if not found
         $serviceRequest = ServiceRequest::findOrFail($requestId);
 
-        // Authorize the user to update the service request
-        // $this->authorize('update', $serviceRequest);
-
-        // Validate the request data
         $validatedData = $request->validate([
             'service_category_id' => 'required|exists:service_categories,id',
             'date' => 'required|date',
@@ -180,7 +173,6 @@ class ClientController extends Controller
             'longitude' => 'required|numeric',
         ]);
 
-        // If a new picture is uploaded, store it and update the path
         if ($request->hasFile('request_picture')) {
             $file = $request->file('request_picture');
             $extension = $file->getClientOriginalExtension();
@@ -191,10 +183,8 @@ class ClientController extends Controller
             $validatedData['request_picture'] = $filePath;
         }
 
-        // Update the existing service request with the new data
         $serviceRequest->update($validatedData);
 
-        // Redirect back to the client panel with a success message
         return redirect()->route('client.singleRequest.view', $requestId)->with('status', 'Service request updated successfully.');
     }
 
@@ -221,6 +211,7 @@ class ClientController extends Controller
         return redirect()->route('home')->with('status', 'Service request cancelled successfully.');
     }
 
+    // View a single request by client
     public function singleRequest($requestId)
     {
         $serviceRequest = ServiceRequest::where('id', $requestId)
@@ -238,6 +229,7 @@ class ClientController extends Controller
         ]);
     }
 
+    // Request a new quote from service provider
     public function requestNewQuote(Request $request, $requestId)
     {
         $serviceRequest = ServiceRequest::findOrFail($requestId);
@@ -252,6 +244,7 @@ class ClientController extends Controller
         return redirect('home')->with('status', 'New quote requested.');
     }
 
+    // Confirm the service request by accepting the quotation
     public function confirm(Request $request, $requestId)
     {
         $serviceRequest = ServiceRequest::findOrFail($requestId);
@@ -280,7 +273,7 @@ class ClientController extends Controller
         return redirect('home')->with('status', 'Appointment for service request confirmed successfully.');
     }
 
-
+    // Reject quote from service provider by client
     public function rejectQuote($requestId)
     {
         $serviceRequest = ServiceRequest::findOrFail($requestId);
@@ -300,15 +293,14 @@ class ClientController extends Controller
         return redirect()->back()->with('error', 'This service request cannot be rejected.');
     }
 
+    // Complete and finish the service request
     public function completeServiceRequest($requestId)
     {
-        // Find the service request
         $serviceRequest = ServiceRequest::findOrFail($requestId);
 
         $invoice = Invoice::where('service_request_id', $requestId)
             ->firstOrFail();
 
-        // Update status to completed
         $serviceRequest->status = 'completed';
         $serviceRequest->save();
 
@@ -318,6 +310,7 @@ class ClientController extends Controller
         return redirect()->back()->with('status', 'Payment Successful & Thank You for choosing TimeTove for your service request.');
     }
 
+    // Rate the service provider's work by client
     public function rateServiceProvider(Request $request, $serviceRequestId)
     {
         $request->validate([

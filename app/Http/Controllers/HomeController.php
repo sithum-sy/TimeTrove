@@ -100,35 +100,35 @@ class HomeController extends Controller
             ->paginate(12);
 
         $totalAssignedTasks = ServiceRequest::where('service_provider_id', Auth::id())->where('status', 'assigned')->count();
-        $totalUpcomimgTasks = ServiceRequest::where('service_provider_id', Auth::id())->where('status', 'confirmed')->count();
+        $totalUpcomingTasks = ServiceRequest::where('service_provider_id', Auth::id())->where('status', 'confirmed')->count();
         $totalCompletedTasks = ServiceRequest::where('service_provider_id', Auth::id())->where('status', 'completed')->count();
 
         // Pass the retrieved data to the 'home' view
-        return view('home', [
-            'schedulers' => $schedulers,
-            'serviceRequests' => $serviceRequests,
-            'serviceCategories' => $serviceCategories,
-            'clientServiceRequests' => $clientServiceRequests,
-            'assignedTasks' => $assignedTasks,
-            'activeSchedulersCount' => $activeSchedulersCount,
-            'totalClients' => $totalClients,
-            'upcomingAppointments' => $upcomingAppointments,
-            'quotations' => $quotations,
-            'completedAppointments' => $completedAppointments,
-            'tasks' => $tasks,
-            'statuses' => $statuses,
-            'totalAppointments' => $totalAppointments,
-            'totalUpcomingAppointments' => $totalUpcomingAppointments,
-            'totalCompletedAppointments' => $totalCompletedAppointments,
-            'totalAssignedTasks' => $totalAssignedTasks,
-            'totalUpcomimgTasks' => $totalUpcomimgTasks,
-            'totalCompletedTasks' => $totalCompletedTasks,
-            'totalServiceRequests' => $totalServiceRequests,
-            'totalPendingRequests' => $totalPendingRequests,
-            'totalConfirmedRequests' => $totalConfirmedRequests,
-            'totalPendingPayments' => $totalPendingPayments,
-            'totalCompletedRequests' => $totalCompletedRequests,
-        ]);
+        return view('home', compact(
+            'schedulers',
+            'serviceRequests',
+            'serviceCategories',
+            'clientServiceRequests',
+            'assignedTasks',
+            'activeSchedulersCount',
+            'totalClients',
+            'upcomingAppointments',
+            'quotations',
+            'completedAppointments',
+            'tasks',
+            'statuses',
+            'totalAppointments',
+            'totalUpcomingAppointments',
+            'totalCompletedAppointments',
+            'totalAssignedTasks',
+            'totalUpcomingTasks',
+            'totalCompletedTasks',
+            'totalServiceRequests',
+            'totalPendingRequests',
+            'totalConfirmedRequests',
+            'totalPendingPayments',
+            'totalCompletedRequests'
+        ));
     }
 
     public function search(Request $request)
@@ -152,7 +152,7 @@ class HomeController extends Controller
             ->paginate(12);
 
         $totalAssignedTasks = ServiceRequest::where('service_provider_id', Auth::id())->where('status', 'assigned')->count();
-        $totalUpcomimgTasks = ServiceRequest::where('service_provider_id', Auth::id())->where('status', 'confirmed')->count();
+        $totalUpcomingTasks = ServiceRequest::where('service_provider_id', Auth::id())->where('status', 'confirmed')->count();
         $totalCompletedTasks = ServiceRequest::where('service_provider_id', Auth::id())->where('status', 'completed')->count();
 
         // Base query with relationships
@@ -219,7 +219,7 @@ class HomeController extends Controller
             'totalUpcomingAppointments' => $totalUpcomingAppointments,
             'totalCompletedAppointments' => $totalCompletedAppointments,
             'totalAssignedTasks' => $totalAssignedTasks,
-            'totalUpcomimgTasks' => $totalUpcomimgTasks,
+            'totalUpcomingTasks' => $totalUpcomingTasks,
             'totalCompletedTasks' => $totalCompletedTasks,
             'totalServiceRequests' => $totalServiceRequests,
             'totalPendingRequests' => $totalPendingRequests,

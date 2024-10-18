@@ -22,6 +22,7 @@ Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name
 Route::get('/home/search', [App\Http\Controllers\HomeController::class, 'search'])->name('search');
 
 Route::group(['middleware' => ['auth', 'verified']], function () {
+    // Admin routes
     Route::middleware([CheckAdminUserRole::class])->group(function () {
         Route::post('/scheduler/store', [SchedulerController::class, 'store'])->name('scheduler.store');
         Route::get('/scheduler/view/{id}', [SchedulerController::class, 'viewScheduler'])->name('scheduler.view');
@@ -30,6 +31,8 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
         Route::put('/scheduler/update/{id}', [SchedulerController::class, 'updateScheduler'])->name('scheduler.update');
         Route::delete('/scheduler/delete/{id}', [SchedulerController::class, 'deleteScheduler'])->name('scheduler.delete');
     });
+
+    // Scheduler routes
     Route::middleware([CheckSchedulerUserRole::class])->group(function () {
         Route::get('/scheduler/service-provider', [SchedulerController::class, 'serviceProviderIndex'])->name('scheduler.serviceProvider');
         Route::get('/scheduler/service-provider/search', [SchedulerController::class, 'serviceProviderSearch'])->name('scheduler.serviceProvider.search');
@@ -41,18 +44,18 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
         Route::get('/scheduler/service-provider/view/{id}', [SchedulerController::class, 'viewServiceProvider'])->name('scheduler.serviceProvider.view');
         Route::get('/scheduler/service-provider/edit/{id}', [SchedulerController::class, 'editServiceProvider'])->name('scheduler.serviceProvider.edit');
         Route::put('/scheduler/service-provider/update/{id}', [SchedulerController::class, 'updateServiceProvider'])->name('scheduler.serviceProvider.update');
-        // Route::post('/scheduler/assign-providers', [SchedulerController::class, 'assignProviders'])->name('scheduler.assignProviders');
         Route::post('/scheduler/assign-provider/{request_id}', [SchedulerController::class, 'assignProvider'])->name('scheduler.assignProvider');
         Route::get('/service-request/{request_id}/client/{client_id}', [SchedulerController::class, 'viewRequest'])->name('scheduler.singleRequest.view');
         Route::get('/service-request/{request_id}/', [SchedulerController::class, 'requestNewQuote'])->name('scheduler.requestNewQuote');
         Route::get('/service-request/pass-to-client/{request_id}/', [SchedulerController::class, 'passToClient'])->name('scheduler.passToClient');
-
         Route::get('/service-categories', [SchedulerController::class, 'serviceCategoriesIndex'])->name('scheduler.serviceCategories');
         Route::post('/service-categories/store', [SchedulerController::class, 'storeServiceCategory'])->name('scheduler.serviceCategories.store');
         Route::patch('/service-categories/status/{serviceCategory}', [SchedulerController::class, 'toggleServiceCategoryStatus'])->name('scheduler.serviceCategories.status');
         Route::delete('/service-categories/delete/{serviceCategory}', [SchedulerController::class, 'deleteServiceCategory'])->name('scheduler.serviceCategories.delete');
         Route::put('/service-categories/update/{serviceCategory}', [SchedulerController::class, 'updateServiceCategories'])->name('scheduler.serviceCategories.update');
     });
+
+    // Client routes
     Route::middleware([CheckClientUserRole::class])->group(function () {
         Route::post('/home/requests', [ClientController::class, 'addRequest'])->name('client.addRequest');
         Route::get('/home/request/{id}/edit/', [ClientController::class, 'editRequest'])->name('client.editRequest');
@@ -68,6 +71,8 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
         Route::get('/profile/edit', [ClientController::class, 'editProfile'])->name('client.editProfile');
         Route::put('/profile/update', [ClientController::class, 'updateProfile'])->name('client.updateProfile');
     });
+
+    // Service Provider routes
     Route::middleware([CheckServiceProviderUserRole::class])->group(function () {
         Route::get('/provider/request/{task_id}/client/{client_id}', [ServiceProviderController::class, 'viewRequest'])->name('provider.serviceRequest.view');
         Route::post('/provider/request/{id}', [ServiceProviderController::class, 'rejectRequest'])->name('provider.serviceRequest.reject');

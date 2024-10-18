@@ -79,7 +79,7 @@
                 </div>
                 <div class="card-body">
                     <p><strong>Total Assigned Tasks:</strong> <span id="totalAssignedTasks">{{ $totalAssignedTasks }}</span></p>
-                    <p><strong>Total Upcoming Tasks:</strong> <span id="completedTasks">{{ $totalUpcomimgTasks }}</span></p>
+                    <p><strong>Total Upcoming Tasks:</strong> <span id="completedTasks">{{ $totalUpcomingTasks }}</span></p>
                     <p><strong>Completed Tasks:</strong> <span id="completedTasks">{{ $totalCompletedTasks }}</span></p>
                 </div>
             </div>

@@ -54,7 +54,6 @@ class RegisterController extends Controller
 
         $message = [
             'before' => 'You must be 18 years or older to register',
-            'profile_picture.image' => 'The profile picture must be an image.',
             'profile_picture.mimes' => 'The profile picture must be a file of type: jpeg, png, jpg, gif.',
             'profile_picture.max' => 'The profile picture may not be greater than 2048 kilobytes.',
         ];
@@ -74,20 +73,14 @@ class RegisterController extends Controller
 
     protected function create(array $data)
     {
-        // Initialize the path variable
         $validatedData['profile_picture'] = null;
 
-        // Check if the request contains a file for profile_picture
         if (array_key_exists('profile_picture', $data) && $data['profile_picture'] instanceof \Illuminate\Http\UploadedFile) {
-            // Handle the file upload
             $file = $data['profile_picture'];
             $fileName = time() . '.' . $file->getClientOriginalExtension();
             $filePath = 'uploads/profile_pictures/' . $fileName;
-
-            // Move the file to the specified directory
             $file->move(public_path('uploads/profile_pictures'), $fileName);
 
-            // Set the profile_picture path in validatedData
             $validatedData['profile_picture'] = $filePath;
         }
 
@@ -100,7 +93,7 @@ class RegisterController extends Controller
             'date_of_birth' => $data['date_of_birth'],
             'address' => $data['address'],
             'gender' => $data['gender'],
-            'profile_picture' => $validatedData['profile_picture'], // Use the stored path here
+            'profile_picture' => $validatedData['profile_picture'],
             'password' => Hash::make($data['password']),
         ]);
     }
