@@ -11,7 +11,7 @@
                 <div class="card-body">
                     <div class="row mb-4">
                         <div class="col-md-4 text-center">
-                            <img src="https://via.placeholder.com/150" alt="Profile Picture" class="img-fluid rounded-circle mb-3">
+                            <img src="{{ asset($client->profile_picture) }}" alt="Profile Picture" class="img-fluid rounded-circle mb-3">
                             <h4 class="text-primary">ID: {{ $client->id }}</h4>
                         </div>
                         <div class="col-md-8">

@@ -79,7 +79,20 @@ class ClientController extends Controller
             'date_of_birth' => 'required|date',
             'address' => 'required|string|max:255',
             'gender' => 'required|in:male,female',
+            'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
+
+        // If a picture is uploaded, store it and add its path to the data
+        if ($request->hasFile('profile_picture')) {
+            $file = $request->file('profile_picture');
+            $extension = $file->getClientOriginalExtension();
+            $fileName = time() . '.' . $extension;
+            $filePath = 'uploads/profile_pictures/' . $fileName;
+            $file->move('uploads/profile_pictures/', $fileName);
+
+            $validatedData['profile_picture'] = $filePath;
+        }
+
 
         $client->update($validatedData);
 

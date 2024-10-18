@@ -21,7 +21,7 @@
                             </a>
                         </div>
                         <div class="col-md-4 text-center">
-                            <img src="https://via.placeholder.com/150" alt="Profile Picture" class="img-fluid rounded-circle mb-3">
+                            <img src="{{ asset($serviceProvider->profile_picture) }}" alt="Profile Picture" class="img-fluid rounded-circle mb-3">
                             <h4 class="text-primary">ID: {{ $serviceProvider->id }}</h4>
                         </div>
                         <div class="col-md-8">

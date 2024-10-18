@@ -54,6 +54,9 @@ class RegisterController extends Controller
 
         $message = [
             'before' => 'You must be 18 years or older to register',
+            'profile_picture.image' => 'The profile picture must be an image.',
+            'profile_picture.mimes' => 'The profile picture must be a file of type: jpeg, png, jpg, gif.',
+            'profile_picture.max' => 'The profile picture may not be greater than 2048 kilobytes.',
         ];
 
         return Validator::make($data, [
@@ -63,19 +66,31 @@ class RegisterController extends Controller
             'phone_number' => ['required', 'string', 'max:20'],
             'date_of_birth' => ['required', 'date', 'before:' . $before],
             'address' => ['required', 'string', 'max:255'],
-            'gender' => ['required', 'string',],
+            'gender' => ['required', 'string'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'profile_picture' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
         ], $message);
     }
 
-    /**
-     * Create a new user instance after a valid registration.
-     *
-     * @param  array  $data
-     * @return \App\Models\User
-     */
     protected function create(array $data)
     {
+        // Initialize the path variable
+        $validatedData['profile_picture'] = null;
+
+        // Check if the request contains a file for profile_picture
+        if (array_key_exists('profile_picture', $data) && $data['profile_picture'] instanceof \Illuminate\Http\UploadedFile) {
+            // Handle the file upload
+            $file = $data['profile_picture'];
+            $fileName = time() . '.' . $file->getClientOriginalExtension();
+            $filePath = 'uploads/profile_pictures/' . $fileName;
+
+            // Move the file to the specified directory
+            $file->move(public_path('uploads/profile_pictures'), $fileName);
+
+            // Set the profile_picture path in validatedData
+            $validatedData['profile_picture'] = $filePath;
+        }
+
         return User::create([
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
@@ -85,6 +100,7 @@ class RegisterController extends Controller
             'date_of_birth' => $data['date_of_birth'],
             'address' => $data['address'],
             'gender' => $data['gender'],
+            'profile_picture' => $validatedData['profile_picture'], // Use the stored path here
             'password' => Hash::make($data['password']),
         ]);
     }

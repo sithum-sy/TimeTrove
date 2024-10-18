@@ -35,6 +35,7 @@ class User extends Authenticatable
         'created_by',
         'is_active',
         'is_default_password_changed',
+        'profile_picture',
     ];
 
     /**

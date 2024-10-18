@@ -240,7 +240,7 @@
                         <i class="bi bi-calendar-range fs-2"></i>
                     </div>
                     <h4>Calendar Integration</h4>
-                    <p>Sync with Google, Outlook, and iCal to keep all your appointments in one place.</p>
+                    <p>Sync with Google and Outlook to keep all your appointments in one place.</p>
                 </div>
             </div>
             <div class="col-md-6 mb-4">

@@ -211,7 +211,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="request_picture" class="form-label">Pictures</label>
-                        <input type="file" class="form-control" id="request_picture" name="request_pictures">
+                        <input type="file" class="form-control" id="request_picture" name="request_picture">
                     </div>
                 </div>
                 <div class="modal-footer">

@@ -140,8 +140,8 @@ send email reminders - php artisan email:send-service-request-reminders
 
 todo 
 1. How to create a service category - DONE
-2. Mapping
-3. Profile pic
+2. Mapping -DONE
+3. Profile pic - DONE
 4. services offered by provider profile- DONE
 5. add multiple request pictures
 6. receipt email - DONE

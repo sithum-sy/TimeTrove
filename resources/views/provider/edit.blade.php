@@ -19,7 +19,7 @@
                     </div>
                     @endif
 
-                    <form method="POST" action="{{ route('provider.updateProfile') }}">
+                    <form method="POST" action="{{ route('provider.updateProfile') }}" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
@@ -65,6 +65,19 @@
                                     <label class="form-check-label" for="female">Female</label>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="profilePicture" class="form-label">Profile Picture</label>
+                            <div class="mb-2">
+                                @if($serviceProvider->profile_picture)
+                                <img src="{{ asset($serviceProvider->profile_picture) }}" alt="profile_picture" class="img-fluid rounded mb-2" style="max-width: 100%; height: auto;">
+                                @else
+                                <p class="text-muted">No picture provided</p>
+                                @endif
+                            </div>
+                            <input type="file" name="profile_picture" id="profile_picture" class="form-control">
+                            <small class="form-text text-muted">Upload a new picture to replace the existing one.</small>
                         </div>
 
                         <div class="d-flex justify-content-between">
