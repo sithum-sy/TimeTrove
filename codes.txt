@@ -145,5 +145,5 @@ todo
 4. services offered by provider profile- DONE
 5. add multiple request pictures
 6. receipt email - DONE
-7. CRUD for client request
+7. CRUD for client request - DONE
 8. View quote in client - DONE

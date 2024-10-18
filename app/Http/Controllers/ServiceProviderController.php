@@ -340,4 +340,32 @@ class ServiceProviderController extends Controller
             'Service was deleted successfully.'
         );
     }
+
+    public function schedule()
+    {
+        $confirmedTasks = ServiceRequest::where('service_provider_id', Auth::id())
+            ->whereIn('status', ['confirmed', 'started', 'completed'])
+            ->with(['serviceCategory', 'client'])
+            ->get();
+
+        $events = $confirmedTasks->map(function ($task) {
+            $startDateTime = $task->date . ' ' . $task->time;
+            // $endDateTime = date('Y-m-d H:i:s', strtotime($startDateTime . ' +2 hours'));
+
+            return [
+                'title' => $task->serviceCategory->name,
+                'description' => $task->description,
+                'start' => $startDateTime,
+                // 'end' => $endDateTime,
+                'id' => $task->id,
+                'extendedProps' => [
+                    'clientName' => $task->client->first_name . ' ' . $task->client->last_name,
+                    'location' => $task->location,
+                    'status' => $task->status,
+                ],
+            ];
+        });
+
+        return view('provider.schedule', compact('events'));
+    }
 }

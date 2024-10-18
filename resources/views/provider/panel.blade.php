@@ -19,8 +19,8 @@
                     <a href="{{ route('provider.profileView') }}" class="btn btn-info btn-block mb-2">
                         <i class="fas fa-user-cog"></i> View Profile
                     </a>
-                    <a href="#" class="btn btn-warning btn-block">
-                        <i class="fas fa-cog"></i> Account Settings
+                    <a href="{{ route('provider.schedule') }}" class="btn btn-warning btn-block">
+                        <i class="fas fa-cog"></i> View My Schedule
                     </a>
                 </div>
             </div>
