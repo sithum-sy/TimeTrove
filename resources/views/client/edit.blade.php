@@ -6,7 +6,7 @@
         <div class="col-md-8">
             <div class="card shadow">
                 <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">Edit Service Provider</h2>
+                    <h2 class="mb-0">Edit User Profile</h2>
                 </div>
                 <div class="card-body">
                     @if ($errors->any())

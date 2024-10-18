@@ -3,6 +3,7 @@
 @section('content')
 <div class="container-fluid mt-4">
     <div class="row justify-content-center">
+
         <div class="col-lg-10">
             <!-- Display Success Message -->
             @if(session('status'))
@@ -85,7 +86,13 @@
             <div class="row">
                 <div class="col-md-4">
                     <div class="card mb-3">
-                        <div class="card-header">Request Information</div>
+                        <div class="card-header d-flex justify-content-between align-items-center">Request Information
+                            @if(in_array($serviceRequest->status, ['pending', 'assigned']))
+                            <a href="{{ route('client.editRequest', $serviceRequest->id) }}" class="btn btn-primary btn-sm me-2">
+                                <i class="fas fa-edit"></i> Edit Request
+                            </a>
+                            @endif
+                        </div>
                         <div class="card-body">
                             <p><strong>Request ID:</strong> {{ $serviceRequest->id }}</p>
                             <p><strong>Client:</strong> {{ $serviceRequest->client->first_name }} {{ $serviceRequest->client->last_name }}</p>
@@ -320,6 +327,7 @@
         </div>
     </div>
 </div>
+
 
 
 <!-- Rating Modal -->

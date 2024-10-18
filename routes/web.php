@@ -55,7 +55,8 @@ Route::group(['middleware' => ['auth', 'verified']], function () {
     });
     Route::middleware([CheckClientUserRole::class])->group(function () {
         Route::post('/home/requests', [ClientController::class, 'addRequest'])->name('client.addRequest');
-        // Route::put('/home/requests/{id}', [ClientController::class, 'updateRequest'])->name('client.updateRequest');
+        Route::get('/home/request/{id}/edit/', [ClientController::class, 'editRequest'])->name('client.editRequest');
+        Route::put('/home/request/{requestId}', [ClientController::class, 'updateRequest'])->name('client.updateRequest');
         Route::delete('/request/delete/{id}', [ClientController::class, 'deleteRequest'])->name('client.deleteRequest');
         Route::get('/home/request/{requestId}', [ClientController::class, 'singleRequest'])->name('client.singleRequest.view');
         Route::get('/home/request/new-quote-request/{requestId}/', [ClientController::class, 'requestNewQuote'])->name('client.requestNewQuote');

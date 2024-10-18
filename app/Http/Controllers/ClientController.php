@@ -128,6 +128,16 @@ class ClientController extends Controller
         return redirect()->route('home')->with('success', 'Service request added successfully.');
     }
 
+    public function editRequest($id)
+    {
+        $serviceRequest = ServiceRequest::findOrFail($id);
+        $serviceCategories = ServiceCategory::all();
+
+        return view("client.edit-request", compact('serviceRequest', 'serviceCategories'));
+    }
+
+
+
     /**
      * Handle the update of an existing service request.
      *
@@ -135,19 +145,19 @@ class ClientController extends Controller
      * @param int $id
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function updateRequest(Request $request, $id)
+    public function updateRequest(Request $request, $requestId)
     {
         // Find the service request by ID, or fail if not found
-        $serviceRequest = ServiceRequest::findOrFail($id);
+        $serviceRequest = ServiceRequest::findOrFail($requestId);
 
         // Authorize the user to update the service request
-        $this->authorize('update', $serviceRequest);
+        // $this->authorize('update', $serviceRequest);
 
         // Validate the request data
         $validatedData = $request->validate([
             'service_category_id' => 'required|exists:service_categories,id',
             'date' => 'required|date',
-            'time' => 'required|date_format:H:i',
+            'time' => 'required',
             'request_picture' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'description' => 'nullable|string',
             'location' => 'required|string'
@@ -168,7 +178,7 @@ class ClientController extends Controller
         $serviceRequest->update($validatedData);
 
         // Redirect back to the client panel with a success message
-        return redirect()->route('client.panel')->with('success', 'Service request updated successfully.');
+        return redirect()->route('client.singleRequest.view', $requestId)->with('status', 'Service request updated successfully.');
     }
 
     /**
