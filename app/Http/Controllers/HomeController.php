@@ -37,31 +37,32 @@ class HomeController extends Controller
      */
     public function index()
     {
-        // Retrieve all users with the role of 'scheduler'
-        $schedulers = User::where('role', User::USER_ROLE_SCHEDULER)->orderBy('updated_at', 'desc')->paginate(8);
+        // Retrieves all unique status values
+        $statuses = ServiceRequest::distinct()->pluck('status');
+
+        // Retrieve all users with the role of 'scheduler' to Admin Dashboard
+        $schedulers = User::where('role', User::USER_ROLE_SCHEDULER)->orderBy('updated_at', 'desc')->paginate(12);
         $activeSchedulersCount = User::where('role', User::USER_ROLE_SCHEDULER)
             ->where('is_active', 1)
             ->count();
 
-        // Retrieve service requests for the authenticated client, including related service categories
+        // Retrieve service requests for the authenticated client, including related service categories in Client Dashboard
         $serviceRequests = ServiceRequest::where('client_id', Auth::id())
             ->with('serviceCategory')
             ->orderBy('updated_at', 'desc')
             ->paginate(12);
 
+        //Get counts for statistics in Client Dashboard
         $totalServiceRequests = ServiceRequest::where('client_id', Auth::id())->count();
         $totalPendingRequests = ServiceRequest::where('client_id', Auth::id())->where('status', 'pending')->count();
         $totalConfirmedRequests = ServiceRequest::where('client_id', Auth::id())->where('status', 'confirmed')->count();
         $totalPendingPayments = ServiceRequest::where('client_id', Auth::id())->where('status', 'pending-payment')->count();
         $totalCompletedRequests = ServiceRequest::where('client_id', Auth::id())->where('status', 'completed')->count();
 
-        $statuses = ServiceRequest::distinct()->pluck('status');
-
-        // Retrieve all service categories
+        // Retrieve all active service categories
         $serviceCategories = ServiceCategory::where('is_active', 1)->get();
 
-        // Retrieve all pending service requests with related client and service category,
-        // ordered by date and paginated with 8 requests per page
+        // Retrieve all pending service requests with related client and service category to Scheduler Dashboard
         $clientServiceRequests = ServiceRequest::whereIn('status', ['pending', 'quoted', 're-quoted', 'pending-approval', 'confirmed', 'started', 'pending-payment', 'completed'])
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc');
@@ -86,19 +87,20 @@ class HomeController extends Controller
             ->orderBy('date', 'desc')
             ->paginate(12);
 
-        //Get count of all unique client ids
-        $totalClients = $clientServiceRequests->pluck('client_id')->unique()->count();
+        //Get counts for statistics in Scheduler Dashboard
         $totalAppointments = ServiceRequest::count();
         $totalUpcomingAppointments = ServiceRequest::whereIn('status', ['pending', 'confirmed', 'started', 'assigned'])->count();
         $totalCompletedAppointments = ServiceRequest::whereIn('status', ['pending-payment', 'completed'])->with(['client', 'serviceCategory'])->count();
+        $totalClients = $clientServiceRequests->pluck('client_id')->unique()->count();
 
-        // Retrieve assigned tasks for the logged-in service provider
+        // Retrieve tasks for the logged-in service provider dashboard
         $assignedTasks = ServiceRequest::where('service_provider_id', Auth::id())
             ->whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'pending-payment', 'completed'])
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc')
             ->paginate(12);
 
+        //Get counts for statistics in service provider dashboard
         $totalAssignedTasks = ServiceRequest::where('service_provider_id', Auth::id())->where('status', 'assigned')->count();
         $totalUpcomingTasks = ServiceRequest::where('service_provider_id', Auth::id())->where('status', 'confirmed')->count();
         $totalCompletedTasks = ServiceRequest::where('service_provider_id', Auth::id())->where('status', 'completed')->count();
@@ -139,18 +141,21 @@ class HomeController extends Controller
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc');
 
+        //Get counts for statistics in Client Dashboard
         $totalServiceRequests = ServiceRequest::where('client_id', Auth::id())->count();
         $totalPendingRequests = ServiceRequest::where('client_id', Auth::id())->where('status', 'pending')->count();
         $totalConfirmedRequests = ServiceRequest::where('client_id', Auth::id())->where('status', 'confirmed')->count();
         $totalPendingPayments = ServiceRequest::where('client_id', Auth::id())->where('status', 'pending-payment')->count();
         $totalCompletedRequests = ServiceRequest::where('client_id', Auth::id())->where('status', 'completed')->count();
 
+        // Retrieve tasks for search in logged-in service provider dashboard
         $assignedTasks = ServiceRequest::where('service_provider_id', Auth::id())
             ->whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'started', 'pending-payment', 'completed'])
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc')
             ->paginate(12);
 
+        //Get counts for statistics in service provider dashboard
         $totalAssignedTasks = ServiceRequest::where('service_provider_id', Auth::id())->where('status', 'assigned')->count();
         $totalUpcomingTasks = ServiceRequest::where('service_provider_id', Auth::id())->where('status', 'confirmed')->count();
         $totalCompletedTasks = ServiceRequest::where('service_provider_id', Auth::id())->where('status', 'completed')->count();
@@ -175,13 +180,13 @@ class HomeController extends Controller
         $tasks = clone $filteredQuery;
         $serviceRequests = clone $filteredQuery;
 
-        // Get total unique clients based on filtered results
+        // Get total unique clients based on filtered results in Scheduler Dashboard
         $totalClients = $filteredQuery->pluck('client_id')->unique()->count();
         $totalAppointments = ServiceRequest::count();
         $totalUpcomingAppointments = ServiceRequest::whereIn('status', ['pending', 'confirmed', 'started', 'assigned'])->count();
         $totalCompletedAppointments = ServiceRequest::whereIn('status', ['pending-payment', 'completed'])->with(['client', 'serviceCategory'])->count();
 
-
+        // Retrieves all unique status values
         $statuses = ServiceRequest::distinct()->pluck('status');
 
         $data = [
@@ -226,15 +231,12 @@ class HomeController extends Controller
             'totalConfirmedRequests' => $totalConfirmedRequests,
             'totalPendingPayments' => $totalPendingPayments,
             'totalCompletedRequests' => $totalCompletedRequests,
-        ];
-
-
-
-        return view('home', $data, [
+            'statuses' => $statuses,
             'clientServiceRequests' => $clientServiceRequests,
             'assignedTasks' => $assignedTasks,
-            'statuses' => $statuses,
-        ]);
+        ];
+
+        return view('home', $data);
     }
 
     private function applyFilters($query, Request $request)

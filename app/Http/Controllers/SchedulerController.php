@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Hash;
 
 class SchedulerController extends Controller
 {
-    //Store a new scheduler
+    // Store a new scheduler by admin
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -55,7 +55,7 @@ class SchedulerController extends Controller
         );
     }
 
-    //view a scheduler
+    //view a scheduler by admin
     public function viewScheduler($id)
     {
         $scheduler = User::where(
@@ -68,7 +68,7 @@ class SchedulerController extends Controller
         ]);
     }
 
-    //toggle 'is_active' status
+    //toggle 'is_active' status by admin
     public function toggleStatus($id)
     {
         $scheduler = User::where(
@@ -82,7 +82,7 @@ class SchedulerController extends Controller
         return redirect()->route('home')->with('status', 'Scheduler status updated successfully.');
     }
 
-    //go to edit view of a scheduler
+    //go to edit view of a scheduler by admin
     public function editScheduler($id)
     {
         $scheduler = User::where(
@@ -93,7 +93,7 @@ class SchedulerController extends Controller
         return view('scheduler.edit', compact('scheduler'));
     }
 
-    //update the service provider details
+    //update the service provider details by admin
     public function updateScheduler(Request $request, $id)
     {
         $scheduler = User::where(
@@ -120,7 +120,7 @@ class SchedulerController extends Controller
             ->with('status', 'Scheduler data updated successfully!');
     }
 
-    //delete a scheduler
+    //delete a scheduler by admin
     public function deleteScheduler($id)
     {
         $scheduler = User::where('role', User::USER_ROLE_SCHEDULER)->findOrFail($id);
@@ -132,32 +132,30 @@ class SchedulerController extends Controller
         );
     }
 
-    //Display the list of service providers
+    //Display the list of service providers in Scheduler Dashboard
     public function serviceProviderIndex()
     {
-        // Retrieve service provider services with associated user and service category
         $serviceProviders = ServiceProviderServices::with(['user', 'serviceCategory'])
             ->whereHas('user', function ($query) {
                 $query->where('role', User::USER_ROLE_SERVICE_PROVIDER);
             })
             ->paginate(10);
 
-        // Get active service categories
         $serviceCategories = ServiceCategory::where('is_active', 1)->get();
 
-        // Count active service providers
         $activeServiceProvidersCount = ServiceProviderServices::whereHas('user', function ($query) {
             $query->where('is_active', 1)
                 ->where('role', User::USER_ROLE_SERVICE_PROVIDER);
         })->count();
 
-        return view('scheduler/service_provider/index', [
-            'serviceProviders' => $serviceProviders,
-            'activeServiceProvidersCount' => $activeServiceProvidersCount,
-            'serviceCategories' => $serviceCategories,
-        ]);
+        return view('scheduler/service_provider/index', compact(
+            'serviceProviders',
+            'activeServiceProvidersCount',
+            'serviceCategories'
+        ));
     }
 
+    // Search and filter for service providers in scheduler dashboard
     public function serviceProviderSearch(Request $request)
     {
         $query = ServiceProviderServices::with(['user', 'serviceCategory'])
@@ -199,18 +197,18 @@ class SchedulerController extends Controller
         $serviceProviders = $query->paginate(10);
 
         // Count active service providers
-        $activeServiceProvidersCount = $serviceProviders->where('user.is_active', 1)->count();
+        $activeServiceProvidersCount = $serviceProviders->where('is_active', 1)->count();
 
-        return view('scheduler.service_provider.index', [
-            'serviceProviders' => $serviceProviders,
-            'activeServiceProvidersCount' => $activeServiceProvidersCount,
-            'serviceCategories' => ServiceCategory::where('is_active', 1)->get(),
-        ]);
+        $serviceCategories = ServiceCategory::where('is_active', 1)->get();
+
+        return view('scheduler.service_provider.index', compact(
+            'serviceProviders',
+            'activeServiceProvidersCount',
+            'serviceCategories'
+        ));
     }
 
-
-
-    //View a single service request which is to be assigned to relevant service provider
+    //View a single service request which is to be assigned to relevant service provider by scheduler
     public function viewRequest($request_id, $client_id)
     {
         $serviceRequest = ServiceRequest::where('id', $request_id)
@@ -233,35 +231,35 @@ class SchedulerController extends Controller
             ->select('users.*')
             ->get();
 
-        // Filter service providers by location
+        // Filter the $serviceProviders collection based on distance to the client
         $filteredProviders = $serviceProviders->filter(function ($provider) use ($clientLat, $clientLng, $distanceThreshold) {
+            // Get the latitude and longitude of the first service associated with the provider
             $latitude = $provider->serviceProviderServices->first()->latitude;
             $longitude = $provider->serviceProviderServices->first()->longitude;
 
+            // Calculate the distance between the client's location and the service provider's location
+            // using the Haversine formula, which gives the great-circle distance between two points
+            // on the Earth's surface
             $distance = (6371 * acos(
-                cos(deg2rad($clientLat)) *
-                    cos(deg2rad($latitude)) *
-                    cos(deg2rad($longitude) - deg2rad($clientLng)) +
-                    sin(deg2rad($clientLat)) *
-                    sin(deg2rad($latitude))
+                cos(deg2rad($clientLat)) * // Convert client latitude to radians and get cosine
+                    cos(deg2rad($latitude)) * // Convert provider latitude to radians and get cosine
+                    cos(deg2rad($longitude) - deg2rad($clientLng)) + // Calculate the difference in longitude in radians and get cosine
+                    sin(deg2rad($clientLat)) * // Convert client latitude to radians and get sine
+                    sin(deg2rad($latitude)) // Convert provider latitude to radians and get sine
             ));
 
+            // Return true if the calculated distance is within the specified threshold, otherwise false
             return $distance <= $distanceThreshold;
         });
+
 
         $quotation = Quotation::where('service_request_id', $serviceRequest->id)->latest()->first();
         $invoice = Invoice::where('service_request_id', $serviceRequest->id)->latest()->first();
 
-        return view('scheduler/client-request-view', [
-            'serviceRequest' => $serviceRequest,
-            'serviceProviders' => $filteredProviders,
-            'quotation' => $quotation,
-            'invoice' => $invoice,
-        ]);
+        return view('scheduler.client-request-view', compact('serviceRequest', 'filteredProviders', 'quotation', 'invoice'));
     }
 
-
-    //assign service request to service provider
+    //assign service request to service provider by scheduler
     public function assignProvider(Request $request, $request_id)
     {
         $serviceRequest = ServiceRequest::findOrFail($request_id);
@@ -273,7 +271,7 @@ class SchedulerController extends Controller
         return redirect('home')->with('status', 'Service provider assigned successfully.');
     }
 
-    //request a new quote from service provider
+    //request a new quote from service provider by scheduler
     public function requestNewQuote(Request $request, $requestId)
     {
         $serviceRequest = ServiceRequest::findOrFail($requestId);
@@ -288,7 +286,7 @@ class SchedulerController extends Controller
         return redirect('home')->with('status', 'New quote requested.');
     }
 
-    //pass the quote to be approved by client
+    //pass the quote to client by scheduler
     public function passToClient(Request $request, $requestId)
     {
         $serviceRequest = ServiceRequest::findOrFail($requestId);
@@ -303,15 +301,16 @@ class SchedulerController extends Controller
         return redirect('home')->with('status', 'Quote passed to client successfully.');
     }
 
-    /********************Servicer Provider Controller Functiions********************************/
 
-    // Show the form for creating a new service provider (Step 1).
+    /********************Servicer Provider Controller Functiions By Scheduler********************************/
+
+    // Show the form 1 for creating a new service provider
     public function serviceProviderForm1()
     {
         return view('scheduler/service_provider/form1');
     }
 
-    //  Show the form for creating a new service provider (Step 2).
+    //  Show the form 2 for creating a new service provider 
     public function serviceProviderForm2(Request $request)
     {
         $serviceCategories = ServiceCategory::all();
@@ -337,7 +336,7 @@ class SchedulerController extends Controller
         ]);
     }
 
-    //    Store a new service provider
+    // Store a new service provider
     public function serviceProviderStore(Request $request)
     {
         $validatedData = $request->validate([
@@ -352,6 +351,8 @@ class SchedulerController extends Controller
             'availability' => ['required', 'string'],
             'rate' => ['required', 'numeric'],
             'city' => ['required', 'string'],
+            'latitude' => ['required', 'numeric'],
+            'longitude' => ['required', 'numeric'],
             'service_category_id' => ['required', 'exists:service_categories,id'],
         ]);
 
@@ -379,6 +380,8 @@ class SchedulerController extends Controller
                 'availability' => $validatedData['availability'],
                 'rate' => $validatedData['rate'],
                 'city' => $validatedData['city'],
+                'latitude' => $validatedData['latitude'],
+                'longitude' => $validatedData['longitude'],
             ]);
         });
 
@@ -388,7 +391,7 @@ class SchedulerController extends Controller
         );
     }
 
-    // toggle 'is_active' status
+    // Toggle 'is_active' status
     public function toggleServiceProviderStatus($id)
     {
         $serviceProvider = User::where(
@@ -402,7 +405,7 @@ class SchedulerController extends Controller
         return redirect()->route('scheduler.serviceProvider')->with('status', 'Service Provider status updated successfully.');
     }
 
-    //view a single service provier
+    // View a single service provier
     public function viewServiceProvider($id)
     {
         $serviceProvider = User::where(
@@ -412,13 +415,10 @@ class SchedulerController extends Controller
 
         $serviceProviderServices = ServiceProviderServices::where('service_provider_id', $serviceProvider->id)->get();
 
-        return view('scheduler.service_provider.view', [
-            'serviceProvider' => $serviceProvider,
-            'serviceProviderServices' => $serviceProviderServices,
-        ]);
+        return view('scheduler.service_provider.view', compact('serviceProvider', 'serviceProviderServices'));
     }
 
-    //go to edit view of a service provider
+    // Go to edit view of a service provider
     public function editServiceProvider($id)
     {
         $serviceProvider = User::where(
@@ -429,7 +429,7 @@ class SchedulerController extends Controller
         return view('scheduler.service_provider.edit', compact('serviceProvider'));
     }
 
-    //update the service provider details
+    // Update the service provider details
     public function updateServiceProvider(Request $request, $id)
     {
         $serviceProvider = User::where(
@@ -456,7 +456,7 @@ class SchedulerController extends Controller
             ->with('status', 'Service provider updated successfully!');
     }
 
-    //delete a service provider
+    // Delete a service provider
     public function deleteServiceProvider($id)
     {
         $serviceProvider = User::where('role', User::USER_ROLE_SERVICE_PROVIDER)->findOrFail($id);
@@ -468,7 +468,7 @@ class SchedulerController extends Controller
         );
     }
 
-    //View service categories
+    // View service categories
     public function serviceCategoriesIndex()
     {
         $serviceCategories = ServiceCategory::paginate(10);
@@ -479,13 +479,10 @@ class SchedulerController extends Controller
             'inactive' => ServiceCategory::where('is_active', false)->count(),
         ];
 
-        return view('scheduler.serviceCategoriesIndex', [
-            'serviceCategories' => $serviceCategories,
-            'statistics' => $statistics,
-        ]);
+        return view('scheduler.serviceCategoriesIndex', compact('serviceCategories', 'statistics'));
     }
 
-    //Add a new service category
+    // Add a new service category
     public function storeServiceCategory(Request $request)
     {
         $validatedData = $request->validate([
@@ -500,6 +497,7 @@ class SchedulerController extends Controller
         return redirect()->route('scheduler.serviceCategories')->with('status', 'Service category created successfully');
     }
 
+    // Toggle status of service categories
     public function toggleServiceCategoryStatus(ServiceCategory $serviceCategory)
     {
         $serviceCategory->update([
@@ -509,7 +507,7 @@ class SchedulerController extends Controller
         return redirect()->back()->with('status', 'Service category status updated successfully');
     }
 
-    //update the service provider details
+    // Update the service category details
     public function updateServiceCategories(Request $request, ServiceCategory $serviceCategory)
     {
         $validatedData = $request->validate([
@@ -526,7 +524,7 @@ class SchedulerController extends Controller
     }
 
 
-    //delete a service category
+    // Delete a service category
     public function deleteServiceCategory(ServiceCategory $serviceCategory)
     {
         $serviceCategory->delete();

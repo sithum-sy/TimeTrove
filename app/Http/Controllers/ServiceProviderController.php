@@ -17,19 +17,17 @@ use Illuminate\Support\Facades\Hash;
 
 class ServiceProviderController extends Controller
 {
-    //view service requests assigned for the service provider
+    // View service requests assigned for the service provider
     public function panel()
     {
         $assignedTasks = ServiceProviderServices::with('serviceRequest')
             ->where('service_provider_id', auth()->id())->where('status', 'assigned')
             ->get();
 
-        return view('provider.panel', [
-            'assignedTasks' => $assignedTasks,
-        ]);
+        return view('provider.panel', compact('assignedTasks'));
     }
 
-    //view a single request assigned for the service provider
+    // View a single request assigned for the service provider
     public function viewRequest($task_id, $client_id)
     {
         $serviceRequest = ServiceRequest::where('id', $task_id)
@@ -45,15 +43,10 @@ class ServiceProviderController extends Controller
         $quotation = Quotation::where('service_request_id', $serviceRequest->id)->latest()->first();
         $invoice = Invoice::where('service_request_id', $serviceRequest->id)->latest()->first();
 
-        return view('provider.service-request-view', [
-            'serviceRequest' => $serviceRequest,
-            'serviceProviders' => $serviceProviders,
-            'quotation' => $quotation,
-            'invoice' => $invoice,
-        ]);
+        return view('provider.service-request-view', compact('serviceRequest', 'serviceProviders', 'quotation', 'invoice'));
     }
 
-    //reject the assigned service request
+    // Reject the assigned service request
     public function rejectRequest(Request $request, $request_id)
     {
 
@@ -66,10 +59,9 @@ class ServiceProviderController extends Controller
         return redirect('home')->with('status', 'Client service request rejected.');
     }
 
-    //store the quote data for a service request
+    // Store the quote data for a service request
     public function storeQuotation(Request $request, $serviceRequestId)
     {
-        // Validate the request
         $validated = $request->validate([
             'service_provider_id' => 'required|exists:users,id',
             'estimated_hours' => 'required|numeric',
@@ -103,7 +95,7 @@ class ServiceProviderController extends Controller
         return redirect('home')->with('status', 'Quotation submitted successfully.');
     }
 
-    //edit and update the data of a quote
+    // Edit and update the data of a quote - REQUOTE
     public function reQuote(Request $request, $id)
     {
         $validated = $request->validate([
@@ -138,6 +130,7 @@ class ServiceProviderController extends Controller
         return redirect('home')->with('status', 'Quotation updated successfully.');
     }
 
+    // Start the service by security code verification
     public function startService(Request $request, ServiceRequest $serviceRequest)
     {
         $request->validate([
@@ -165,10 +158,9 @@ class ServiceProviderController extends Controller
         return redirect('home')->with('status', 'Service started successfully.');
     }
 
-    //store the invoice data for a service request
+    // Store the invoice data for a service request
     public function storeInvoice(Request $request, $serviceRequestId)
     {
-        // Validate the request
         $validated = $request->validate([
             'service_provider_id' => 'required|exists:users,id',
             'actual_hours' => 'required|numeric',
@@ -204,7 +196,7 @@ class ServiceProviderController extends Controller
 
 
 
-    //view service provier profile data
+    // View service provider profile data
     public function profileView()
     {
         $serviceProvider = Auth::user();
@@ -215,21 +207,18 @@ class ServiceProviderController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        return view('provider.view', [
-            'serviceProvider' => $serviceProvider,
-            'serviceProviderServices' => $serviceProviderServices
-        ]);
+        return view('provider.view', compact('serviceProvider', 'serviceProviderServices'));
     }
 
+    // Edit service provider profile
     public function editProfile()
     {
         $serviceProvider = Auth::user();
 
-        return view('provider.edit', [
-            'serviceProvider' => $serviceProvider,
-        ]);
+        return view('provider.edit', compact('serviceProvider'));
     }
 
+    // Update service provider profile
     public function updateProfile(Request $request)
     {
         $serviceProvider = Auth::user();
@@ -260,24 +249,21 @@ class ServiceProviderController extends Controller
             $validatedData['profile_picture'] = $filePath;
         }
 
-
         $serviceProvider->update($validatedData);
 
         return redirect()->route('provider.profileView')
             ->with('status', 'Profile updated successfully!');
     }
 
-    //add services which are provided by service providers
+    // Add services which are provided by service providers
     public function addService()
     {
         $serviceCategories = ServiceCategory::all();
 
-        return view('provider.add-service', [
-            'serviceCategories' => $serviceCategories,
-        ]);
+        return view('provider.add-service', compact('serviceCategories'));
     }
 
-    //Store a new service
+    // Store a new service
     public function serviceStore(Request $request)
     {
         $validatedData = $request->validate([
@@ -293,7 +279,6 @@ class ServiceProviderController extends Controller
         DB::transaction(function () use ($validatedData) {
             $serviceProvider = Auth::user();
 
-            // Create a record in ServiceProviderServices for the newly created service provider
             ServiceProviderServices::create([
                 'service_provider_id' => $serviceProvider->id,
                 'service_category_id' => $validatedData['service_category_id'],
@@ -312,20 +297,17 @@ class ServiceProviderController extends Controller
         );
     }
 
-    //go to edit-service view
+    // Go to edit-service view
     public function editService($id)
     {
         $serviceProviderService = ServiceProviderServices::findOrFail($id);
 
         $serviceCategories = ServiceCategory::all();
 
-        return view('provider.edit-service', [
-            'serviceProviderService' => $serviceProviderService,
-            'serviceCategories' => $serviceCategories
-        ]);
+        return view('provider.edit-service', compact('serviceProviderService', 'serviceCategories'));
     }
 
-    //update the service data
+    // Update the service data
     public function updateService(Request $request, $id)
     {
         $validatedData = $request->validate([
@@ -348,7 +330,7 @@ class ServiceProviderController extends Controller
         );
     }
 
-    //delete a service
+    // Delete a service
     public function deleteService($id)
     {
         $serviceProviderService = ServiceProviderServices::findOrFail($id);
@@ -360,6 +342,7 @@ class ServiceProviderController extends Controller
         );
     }
 
+    // View service provider's schedule in a calendar view - FullCalendar
     public function schedule()
     {
         $confirmedTasks = ServiceRequest::where('service_provider_id', Auth::id())
