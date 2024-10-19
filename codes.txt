@@ -147,3 +147,5 @@ todo
 6. receipt email - DONE
 7. CRUD for client request - DONE
 8. View quote in client - DONE
+
+service provider services are shown to all

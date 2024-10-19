@@ -15,9 +15,7 @@
 
 @push('scripts')
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.js'></script>
-@endpush
 
-@push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
@@ -79,6 +77,5 @@
         calendar.render();
     });
 </script>
-
 
 @endpush

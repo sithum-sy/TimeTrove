@@ -198,7 +198,7 @@
         <header class="text-center mb-5">
             <h1 class="display-4 text-primary fw-bold">Welcome to TimeTrove</h1>
             <p class="lead">Streamline Your Appointment Management</p>
-            <a href="#" class="btn btn-primary btn-lg mt-3">Get Started</a>
+            <a href="{{ route('register') }}" class="btn btn-primary btn-lg mt-3">Get Started</a>
         </header>
 
         <!-- Features Section -->

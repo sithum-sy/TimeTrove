@@ -216,12 +216,18 @@ class SchedulerController extends Controller
             ->with('serviceCategory')
             ->firstOrFail();
 
+        // Extract latitude and longitude values for the client's location.
         $clientLat = $serviceRequest->latitude;
         $clientLng = $serviceRequest->longitude;
-        $serviceCategoryId = $serviceRequest->serviceCategory->id;
-        $distanceThreshold = 10; // Set your distance threshold in kilometers
 
-        // Get service providers by service category
+        // Get the service category ID from the service request.
+        $serviceCategoryId = $serviceRequest->serviceCategory->id;
+
+        // Define a distance threshold (in kilometers) for filtering service providers.
+        $distanceThreshold = 10;
+
+        // Retrieve active service providers who offer services in the same category,
+        // ensuring they have valid latitude and longitude coordinates.
         $serviceProviders = User::where('is_active', 1)
             ->whereHas('serviceProviderServices', function ($query) use ($serviceCategoryId) {
                 $query->where('service_category_id', $serviceCategoryId)
@@ -231,35 +237,40 @@ class SchedulerController extends Controller
             ->select('users.*')
             ->get();
 
-        // Filter the $serviceProviders collection based on distance to the client
+        // Filter the service providers to only include those within the distance threshold.
         $filteredProviders = $serviceProviders->filter(function ($provider) use ($clientLat, $clientLng, $distanceThreshold) {
-            // Get the latitude and longitude of the first service associated with the provider
+            // Get the first service provider's latitude and longitude values.
             $latitude = $provider->serviceProviderServices->first()->latitude;
             $longitude = $provider->serviceProviderServices->first()->longitude;
 
-            // Calculate the distance between the client's location and the service provider's location
-            // using the Haversine formula, which gives the great-circle distance between two points
-            // on the Earth's surface
+            // Calculate the distance between the client and the service provider using the Haversine formula.
             $distance = (6371 * acos(
-                cos(deg2rad($clientLat)) * // Convert client latitude to radians and get cosine
-                    cos(deg2rad($latitude)) * // Convert provider latitude to radians and get cosine
-                    cos(deg2rad($longitude) - deg2rad($clientLng)) + // Calculate the difference in longitude in radians and get cosine
-                    sin(deg2rad($clientLat)) * // Convert client latitude to radians and get sine
-                    sin(deg2rad($latitude)) // Convert provider latitude to radians and get sine
+                cos(deg2rad($clientLat)) *
+                    cos(deg2rad($latitude)) *
+                    cos(deg2rad($longitude) - deg2rad($clientLng)) +
+                    sin(deg2rad($clientLat)) *
+                    sin(deg2rad($latitude))
             ));
 
-            // Return true if the calculated distance is within the specified threshold, otherwise false
+            // Include the provider if the distance is within the specified threshold.
             return $distance <= $distanceThreshold;
         });
 
-
+        // Retrieve the latest quotation associated with the service request, if available.
         $quotation = Quotation::where('service_request_id', $serviceRequest->id)->latest()->first();
+
+        // Retrieve the latest invoice associated with the service request, if available.
         $invoice = Invoice::where('service_request_id', $serviceRequest->id)->latest()->first();
 
-        return view('scheduler.client-request-view', compact('serviceRequest', 'filteredProviders', 'quotation', 'invoice'));
+        return view('scheduler/client-request-view', [
+            'serviceRequest' => $serviceRequest,
+            'serviceProviders' => $filteredProviders,
+            'quotation' => $quotation,
+            'invoice' => $invoice,
+        ]);
     }
 
-    //assign service request to service provider by scheduler
+    // Assign service request to service provider by scheduler
     public function assignProvider(Request $request, $request_id)
     {
         $serviceRequest = ServiceRequest::findOrFail($request_id);

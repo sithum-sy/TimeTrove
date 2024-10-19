@@ -82,7 +82,8 @@ class HomeController extends Controller
             ->orderBy('date', 'desc')
             ->paginate(8, ['*'], 'completedAppointmentsPage');
 
-        $tasks = ServiceRequest::whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'started', 'pending-payment',  'completed'])
+        // Retrieve tasks for the logged-in service provider dashboard
+        $tasks = ServiceRequest::where('service_provider_id', Auth::id())->whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'started', 'pending-payment',  'completed'])
             ->with(['client', 'serviceCategory'])
             ->orderBy('date', 'desc')
             ->paginate(12);
@@ -93,7 +94,6 @@ class HomeController extends Controller
         $totalCompletedAppointments = ServiceRequest::whereIn('status', ['pending-payment', 'completed'])->with(['client', 'serviceCategory'])->count();
         $totalClients = $clientServiceRequests->pluck('client_id')->unique()->count();
 
-        // Retrieve tasks for the logged-in service provider dashboard
         $assignedTasks = ServiceRequest::where('service_provider_id', Auth::id())
             ->whereIn('status', ['assigned', 'quoted', 'new-quote-requested', 're-quoted', 'pending-approval', 'confirmed', 'pending-payment', 'completed'])
             ->with(['client', 'serviceCategory'])

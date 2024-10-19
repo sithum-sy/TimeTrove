@@ -200,7 +200,7 @@
                     </div>
                     <input type="hidden" id="latitude" name="latitude" required>
                     <input type="hidden" id="longitude" name="longitude" required>
-                    <div id="map" style="height: 300px;"></div> <!-- Add a div for the map -->
+                    <div id="map" style="height: 300px;"></div>
                     <div class="mb-3">
                         <label for="date" class="form-label">Date</label>
                         <input type="date" class="form-control" id="date" name="date" required>
