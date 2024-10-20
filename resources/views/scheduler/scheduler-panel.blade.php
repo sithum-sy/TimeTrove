@@ -178,19 +178,16 @@
             <form id="scheduleAppointmentForm" method="POST" action="#">
                 @csrf
                 <div class="modal-body">
-                    <!-- Add form fields for scheduling an appointment -->
                     <div class="mb-3">
                         <label for="client" class="form-label">Client</label>
                         <select class="form-select" id="client" name="client_id" required>
                             <option value="" disabled selected>Select a client</option>
-                            <!-- Add options dynamically from your client list -->
                         </select>
                     </div>
                     <div class="mb-3">
                         <label for="service_category" class="form-label">Service Category</label>
                         <select class="form-select" id="service_category" name="service_category_id" required>
                             <option value="" disabled selected>Select a service</option>
-                            <!-- Add options dynamically from your service categories -->
                         </select>
                     </div>
                     <div class="mb-3">

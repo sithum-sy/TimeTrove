@@ -121,12 +121,10 @@
                                     <th>Location</th>
                                     <th>Date & Time</th>
                                     <th>Status</th>
-                                    <!-- <th>Picture</th> -->
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- To iterate over a collection or array, but also want to provide a fallback or default message when the collection is empty -->
                                 @forelse($serviceRequests as $request)
                                 <tr>
                                     <td>{{ $request->id }}</td>
@@ -160,7 +158,6 @@
                             </tbody>
                         </table>
                     </div>
-                    <!-- Pagination Links -->
                     <div class="d-flex justify-content-center">
                         {{ $serviceRequests->appends(request()->query())->links('vendor.pagination.bootstrap-4') }}
                     </div>
