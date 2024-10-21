@@ -52,7 +52,7 @@
 
                         <div class="mb-3">
                             <label for="city" class="form-label">Working Area/Location</label>
-                            <input type="text" class="form-control" id="city" name="city" value="{{ old('city', $serviceProviderService->city) }}" required>
+                            <input type="text" class="form-control" id="city" name="city" value="{{ old('city', $serviceProviderService->city) }}" required readonly>
                         </div>
 
                         <input type="hidden" id="latitude" name="latitude" value="{{ $serviceProviderService->latitude }}">
