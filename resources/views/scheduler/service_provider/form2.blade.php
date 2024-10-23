@@ -53,7 +53,7 @@
             <div class="col-md-6">
                 <div class="form-group">
                     <label for="city" class="form-label">Working Area/Location</label>
-                    <input type="text" name="city" id="city" class="form-control" required>
+                    <input type="text" name="city" id="city" class="form-control" required readonly>
                 </div>
             </div>
         </div>
