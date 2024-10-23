@@ -26,9 +26,71 @@ Follow these steps to set up TimeTrove on your local environment.
 
 ### Installation
 
-1. **Clone the repository:**
+1.  **Clone the repository:**
 
     ```bash
     git clone https://github.com/your-username/timetrove-scheduler.git
     cd timetrove-scheduler
     ```
+
+2.  **Install dependencies:**
+    Run the following command to install the PHP dependencies:
+
+    ```bash
+    composer install
+    ```
+
+    Then, install the frontend dependencies:
+
+    ```bash
+    npm install
+    ```
+
+3.  **Environment setup:**
+    Copy the .env.example file to .env:
+
+    ```bash
+    cp .env.example .env
+    ```
+
+4.  **Generate the application key:**
+
+    ```bash
+    php artisan key:generate
+    ```
+
+5.  **Run the database migrations:**
+
+    ```bash
+    php artisan migrate
+    ```
+
+6.  **Seed the database:**
+
+    ```bash
+    php artisan db:seed
+    ```
+
+7.  **Start the development server:**
+
+    ```bash
+    php artisan serve
+    ```
+
+8.  **Compile frontend assets:**
+
+    ```bash
+    npm run dev
+    ```
+
+### Accessing the Application
+
+Visit http://localhost:8000 in your browser to access the TimeTrove Scheduler.
+
+### Contributing
+
+Feel free to submit issues or pull requests if you would like to contribute to the project. Please ensure that your contributions are well-documented and follow the code standards of the project.
+
+### License
+
+This project is licensed under the MIT License. See the LICENSE file for more details.
